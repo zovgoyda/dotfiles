@@ -34,38 +34,41 @@ window {
     background-color: alpha(${background}, 0.97);
     border: 2px solid ${color4};
     border-radius: 20px;
-    padding: 16px;
+    padding: 12px;
 }
 #input {
-    background-color: shade(${background}, 0.75);
+    background-color: alpha(${background}, 0.85);
     color: #ffffff;
-    border: 1px solid ${color4};
+    border: 2px solid ${color4};
     border-radius: 12px;
-    margin-bottom: 10px;
-    padding: 10px;
-    font-size: 13px;
+    margin-bottom: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
 }
 #entry {
-    border-radius: 10px;
-    padding: 2px;
-    margin: 3px;
+    border-radius: 8px;
+    padding: 0px;
+    margin: 2px;
     background-color: transparent;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     min-width: 220px;
 }
 #entry:hover {
-    border: 1px solid alpha(${color4}, 0.7);
+    border: 2px solid ${color4};
+    background-color: alpha(${color4}, 0.2);
 }
 #entry:selected {
     border: 2px solid ${color5};
+    background-color: alpha(${color5}, 0.3);
 }
 #text {
-    opacity: 0;
-    min-height: 0px;
-    min-width: 0px;
+    color: ${foreground};
+    font-size: 13px;
 }
 #img, image {
-    border-radius: 8px;
+    border-radius: 6px;
+    margin: 0px;
+    padding: 0px;
 }
 CSS
 
@@ -133,7 +136,7 @@ cat > "$HOME/.config/waybar/colors.css" << CSSEOF
 @define-color danger ${color1};
 CSSEOF
 
-# Генерируем style.css для wofi со всеми цветами встроенными (без импорта)
+# Генерируем style.css для wofi со сжатым расстоянием между картинками
 mkdir -p "$HOME/.config/wofi"
 cat > "$HOME/.config/wofi/style.css" << CSSEOF
 window {
@@ -145,7 +148,7 @@ window {
     background-color: alpha(${background}, 0.97);
     border: 2px solid ${color4};
     border-radius: 20px;
-    padding: 16px;
+    padding: 12px;
 }
 
 #input {
@@ -153,22 +156,22 @@ window {
     color: ${foreground};
     border: 2px solid ${color4};
     border-radius: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     padding: 10px 15px;
     font-size: 14px;
 }
 
 #entry {
-    border-radius: 10px;
-    padding: 6px;
-    margin: 3px;
+    border-radius: 8px;
+    padding: 0px;
+    margin: 2px;
     background-color: transparent;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     min-width: 220px;
 }
 
 #entry:hover {
-    border: 1px solid ${color4};
+    border: 2px solid ${color4};
     background-color: alpha(${color4}, 0.2);
 }
 
@@ -183,7 +186,9 @@ window {
 }
 
 #img, image {
-    border-radius: 8px;
+    border-radius: 6px;
+    margin: 0px;
+    padding: 0px;
 }
 CSSEOF
 
