@@ -105,7 +105,7 @@ choice=$(
         fi
 
         printf 'img:%s:text:%s\n' "$icon_path" "$name"
-    done | wofi --conf="$WOFI_CONF" --dmenu --allow-images --define=image_size="${THUMB_SIZE}" --style="$WOFI_STYLE" --width=1250 --height=520 --columns=5 --hide-scroll --location=center --prompt="Выбери обои:"
+    done | wofi --conf="$WOFI_CONF" --dmenu --allow-images --define=image_size="${THUMB_SIZE}" --style="$WOFI_STYLE" --width=1250 --height=520 --columns=5 --hide-scroll --location=center --prompt[...]
 )
 shopt -u nullglob nocaseglob
 
@@ -182,9 +182,10 @@ window {
 }
 
 #text {
-    opacity: 0;
-    min-height: 0px;
-    min-width: 0px;
+    opacity: 1;
+    color: ${foreground};
+    font-size: 14px;
+    margin-left: 5px;
 }
 
 #img, image {
