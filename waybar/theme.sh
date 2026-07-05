@@ -121,6 +121,7 @@ pkill swaybg 2>/dev/null
 swaybg -i "$WALLPAPER" -m fill &
 disown
 
+# Генерируем colors.css для waybar
 cat > "$HOME/.config/waybar/colors.css" << CSSEOF
 @define-color bg ${background};
 @define-color fg ${foreground};
@@ -129,6 +130,8 @@ cat > "$HOME/.config/waybar/colors.css" << CSSEOF
 @define-color danger ${color1};
 CSSEOF
 
+# Генерируем colors.css для wofi
+mkdir -p "$HOME/.config/wofi"
 cat > "$HOME/.config/wofi/colors.css" << CSSEOF
 @define-color bg ${background};
 @define-color fg ${foreground};
@@ -136,6 +139,61 @@ cat > "$HOME/.config/wofi/colors.css" << CSSEOF
 @define-color accent ${color5};
 CSSEOF
 
+# Генерируем style.css для wofi с импортом colors.css
+cat > "$HOME/.config/wofi/style.css" << CSSEOF
+@import "colors.css";
+
+window {
+    background-color: transparent;
+    border: none;
+}
+
+#outer-box {
+    background-color: alpha(@bg, 0.97);
+    border: 2px solid @border;
+    border-radius: 20px;
+    padding: 16px;
+}
+
+#input {
+    background-color: shade(@bg, 0.75);
+    color: @fg;
+    border: 1px solid @border;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 13px;
+}
+
+#entry {
+    border-radius: 10px;
+    padding: 2px;
+    margin: 3px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    min-width: 220px;
+}
+
+#entry:hover {
+    border: 1px solid alpha(@border, 0.7);
+}
+
+#entry:selected {
+    border: 2px solid @accent;
+    background-color: alpha(@accent, 0.1);
+}
+
+#text {
+    color: @fg;
+    font-size: 13px;
+}
+
+#img, image {
+    border-radius: 8px;
+}
+CSSEOF
+
+# Генерируем colors.kdl для niri
 mkdir -p "$HOME/.config/niri/add"
 cat > "$HOME/.config/niri/add/colors.kdl" << KDLEOF
 overview {
