@@ -151,7 +151,7 @@ binds {
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
     //Mod+W { toggle-column-tabbed-display; }
-    Mod+X { spawn "/home/goyda/.config/waybar/powermenu.sh"; }
+    Mod+X { spawn "~/.config/waybar/powermenu.sh"; }
 
     Home { screenshot; }
     Ctrl+Print { screenshot-screen; }
