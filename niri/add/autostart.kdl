@@ -1,0 +1,8 @@
+spawn-at-startup "sh" "-c" "wl-paste --type text --watch cliphist store"
+spawn-at-startup "sh" "-c" "wl-paste --type image --watch cliphist store"
+spawn-at-startup "cosmic-ext-alternative-startup"
+//spawn-at-startup "vibepanel"
+//spawn-at-startup "qs" "-c" "noctalia-shell"
+spawn-at-startup "waybar"
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+spawn-at-startup "/home/goyda/.config/waybar/set-wallpaper.sh"

@@ -1,0 +1,145 @@
+window-rule {
+	    match app-id="org-tlauncher-tlauncher-rmo-TLauncher"
+	        open-floating true
+	}
+
+
+window-rule {
+	    match app-id="org.pulseaudio.pavucontrol"
+	        
+	        open-floating true
+		    max-width 600
+		    max-height 600
+		    default-floating-position x=2550 y=20
+		  	    }
+
+
+	    layer-rule {
+		        match namespace="^wofi$"
+			    geometry-corner-radius 20
+			      			}
+
+
+
+// @id=wr_1776947182587145867 @name=kitty
+window-rule {
+    match app-id="^kitty$"
+    opacity 0.98
+    background-effect {
+	    blur true
+	   }
+}
+
+
+// @id=wr_1776949251859049535 @name=yad
+window-rule {
+    match app-id="^yad$"
+    open-floating true
+}
+
+// @id=wr_1776949274409396517 @name=PortProton
+window-rule {
+    match app-id="^PortProton$"
+    open-floating true
+}
+
+// @id=wr_1776950297138619427 @name=steam_proton
+window-rule {
+    match app-id="^steam_proton$"
+    open-floating true
+}
+
+// @id=wr_1776957749069059879 @name=org.kde.kdeconnect.app
+window-rule {
+    match app-id="^org.kde.kdeconnect.app$"
+    open-floating true
+}
+
+// @id=wr_1776957764760767373 @name=org.kde.kdeconnect.app
+window-rule {
+    match app-id="^org.kde.kdeconnect.app$"
+    max-width 800
+    max-height 600
+}
+
+// @id=wr_1776958080106251476 @name=org.kde.kdeconnect.app
+window-rule {
+    match app-id="^org.kde.kdeconnect.app$"
+    max-width 1280
+    max-height 720
+}
+
+// @id=wr_1776958411612789879 @name=org.qbittorrent.qBittorrent
+window-rule {
+    match app-id="^org.qbittorrent.qBittorrent$"
+    open-floating true
+}
+
+// @id=wr_1776966457723242395 @name=io.github.ilya_zlobintsev.LACT
+window-rule {
+    match app-id="^io.github.ilya_zlobintsev.LACT$"
+    open-floating true
+}
+
+// @id=wr_1777490355715760748 @name=org.kde.elisa
+window-rule {
+    match app-id="^org.kde.elisa$"
+    open-floating true
+}
+
+// @id=wr_1777490430976352456 @name=xarchiver
+window-rule {
+    match app-id="^xarchiver$"
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+window-rule {
+    match app-id="org.gnome.Nautilus"
+    open-floating true
+}
+
+window-rule {
+    match app-id="^ru.linux_gaming.PortProtonQt$"
+    open-floating true
+}
+
+
+window-rule {
+    geometry-corner-radius 10
+    clip-to-geometry true
+}
+
+
+
+
+
+
+
+layer-rule {
+	    match namespace="^waybar$"
+	        geometry-corner-radius 12
+		   
+	
+
+				}
+
+				layer-rule {
+					    match namespace="^wofi$"
+					        geometry-corner-radius 20
+						background-effect {
+						    blur true 
+					                               }	    
+					
+								        }
+
+

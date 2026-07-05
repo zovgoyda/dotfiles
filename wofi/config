@@ -1,0 +1,8 @@
+width=600
+height=400
+prompt=Поиск приложений...
+show=drun
+columns=3
+allow_images=true
+insensitive=true
+hide_scroll=true

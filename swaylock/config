@@ -1,0 +1,19 @@
+screenshots
+effect-blur=7x5
+
+# Включение часов и индикатора
+#clock
+#indicator
+
+# Формат времени и даты (24-часовой формат)
+#timestr=%H:%M
+#datestr=%A, %d %B
+
+# Настройка шрифтов (убедитесь, что шрифт установлен в системе)
+#font="JetBrains Mono"
+#font-size=24
+
+# Позиционирование часов по центру экрана
+#timestr-pos=ix:iy-20
+#datestr-pos=ix:iy+20
+
