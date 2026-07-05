@@ -24,10 +24,10 @@ window {
 }
 EOF
 
-# 3. Логика cliphist + wofi с применением стиля
+# 3. Логика cliphist + wofi с защитой от ESC (-r)
 if [ -z "$@" ]; then
-    # Показываем меню wofi со стилями, выбранный элемент передается этому же скрипту
-    cliphist list | wofi --dmenu --style "$WOFI_STYLE" | xargs -I {} "$0" "{}"
+    # Показываем wofi. Если нажат ESC, флаг -r остановит выполнение
+    cliphist list | wofi --dmenu --style "$WOFI_STYLE" | xargs -r -I {} "$0" "{}"
 else
     # Декодируем и копируем в буфер обмена
     echo "$@" | cliphist decode | wl-copy
@@ -35,3 +35,4 @@ fi
 
 # 4. Удаляем временный файл стиля
 rm "$WOFI_STYLE"
+
