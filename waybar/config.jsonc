@@ -70,7 +70,7 @@
     },
      "custom/cliphist": {
      "format": "📋",
-     "on-click": "rofi -modi clipboard:~/.config/waybar/cliphist.sh -show clipboard",
+     "on-click": "wofi -modi clipboard:~/.config/waybar/cliphist.sh -show clipboard",
      "tooltip": false
     }
 }
