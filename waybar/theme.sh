@@ -14,8 +14,11 @@ if [ -f "$WAL_COLORS" ]; then
     source "$WAL_COLORS"
 else
     background="#2e1a47"
+    foreground="#ffffff"
     color4="#4a2c73"
     color5="#4a2c73"
+    color1="#ff6b6b"
+    color8="#666666"
 fi
 
 WOFI_STYLE=$(mktemp)
@@ -130,44 +133,34 @@ cat > "$HOME/.config/waybar/colors.css" << CSSEOF
 @define-color danger ${color1};
 CSSEOF
 
-# Генерируем colors.css для wofi
+# Генерируем style.css для wofi со всеми цветами встроенными (без импорта)
 mkdir -p "$HOME/.config/wofi"
-cat > "$HOME/.config/wofi/colors.css" << CSSEOF
-@define-color bg ${background};
-@define-color fg ${foreground};
-@define-color border ${color4};
-@define-color accent ${color5};
-CSSEOF
-
-# Генерируем style.css для wofi с импортом colors.css
 cat > "$HOME/.config/wofi/style.css" << CSSEOF
-@import "colors.css";
-
 window {
     background-color: transparent;
     border: none;
 }
 
 #outer-box {
-    background-color: alpha(@bg, 0.97);
-    border: 2px solid @border;
+    background-color: alpha(${background}, 0.97);
+    border: 2px solid ${color4};
     border-radius: 20px;
     padding: 16px;
 }
 
 #input {
-    background-color: shade(@bg, 0.75);
-    color: @fg;
-    border: 1px solid @border;
+    background-color: alpha(${background}, 0.85);
+    color: ${foreground};
+    border: 2px solid ${color4};
     border-radius: 12px;
     margin-bottom: 10px;
-    padding: 10px;
-    font-size: 13px;
+    padding: 10px 15px;
+    font-size: 14px;
 }
 
 #entry {
     border-radius: 10px;
-    padding: 2px;
+    padding: 6px;
     margin: 3px;
     background-color: transparent;
     border: 1px solid transparent;
@@ -175,16 +168,17 @@ window {
 }
 
 #entry:hover {
-    border: 1px solid alpha(@border, 0.7);
+    border: 1px solid ${color4};
+    background-color: alpha(${color4}, 0.2);
 }
 
 #entry:selected {
-    border: 2px solid @accent;
-    background-color: alpha(@accent, 0.1);
+    border: 2px solid ${color5};
+    background-color: alpha(${color5}, 0.3);
 }
 
 #text {
-    color: @fg;
+    color: ${foreground};
     font-size: 13px;
 }
 
