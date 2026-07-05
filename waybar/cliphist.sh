@@ -1,26 +1,71 @@
 #!/usr/bin/env bash
 
-# 1. Подгружаем цвета Pywal
+# 1. Подгружаем цвета Pywal (с фолбэком на цвета из wofi/colors.css)
 WAL_COLORS="$HOME/.cache/wal/colors.sh"
 if [ -f "$WAL_COLORS" ]; then
     source "$WAL_COLORS"
 else
-    background="#2e1a47"
-    color4="#4a2c73"
-    color5="#4a2c73"
+    background="#0b0e19"
+    foreground="#c2c2c5"
+    color4="#8A778F"
+    color5="#5999D0"
 fi
 
-# 2. Создаем временный файл стилей для wofi
+# 2. Стиль для wofi
 WOFI_STYLE=$(mktemp)
 cat <<EOF > "$WOFI_STYLE"
 window {
-    background-color: $background;
+    background-color: alpha(${background}, 0.97);
+    border: 2px solid ${color4};
+    border-radius: 16px;
+    padding: 6px;
+}
+#outer-box {
+    background-color: transparent;
+    border: none;
+    margin: 0px;
+    padding: 4px;
+}
+#input {
+    background-color: alpha(${background}, 0.85);
+    color: ${foreground};
+    border: 2px solid ${color4};
+    border-radius: 10px;
+    margin: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+#scroll {
+    margin: 0px;
+    padding: 0px;
+}
+#entry {
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin: 2px 6px;
+    background-color: transparent;
+    border: 2px solid transparent;
+    min-height: 32px;
+}
+#entry:hover {
+    border: 2px solid ${color4};
+    background-color: alpha(${color4}, 0.15);
 }
 #entry:selected {
-    background-color: $color4;
+    border: 2px solid ${color5};
+    background-color: alpha(${color5}, 0.25);
+}
+#text {
+    color: ${foreground};
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
 }
 #text:selected {
-    color: $color5;
+    color: ${foreground};
+}
+#img {
+    border-radius: 6px;
+    margin-right: 8px;
 }
 EOF
 
@@ -29,9 +74,9 @@ THUMB_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/cliphist/thumbs"
 mkdir -p "$THUMB_DIR"
 
 # Основная логика вызова меню
-if [ -z "$@" ]; then
+if [ -z "$1" ]; then
     CLIPHIST_LIST=$(cliphist list)
-    
+
     # Очищаем старый кэш миниатюр, которых больше нет в истории cliphist
     for thumb in "$THUMB_DIR"/*; do
         [ -e "$thumb" ] || continue
@@ -42,7 +87,8 @@ if [ -z "$@" ]; then
         fi
     done
 
-    # Парсер: находит бинарные изображения и генерирует для них PNG-иконки
+    # Парсер: находит бинарные изображения и генерирует для них PNG-иконки,
+    # а длинные текстовые строки обрезает, чтобы не было переноса на 2 строки
     PROG_PARSER=$(cat <<'EOF'
     /^[0-9]+\s<meta http-equiv=/ { next }
     match($0, /^([0-9]+)\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp|webp)/, grp) {
@@ -51,40 +97,41 @@ if [ -z "$@" ]; then
         print "img:" THUMB_DIR "/" image
         next
     }
-    1
+    {
+        line = $0
+        if (length(line) > 90) {
+            line = substr(line, 1, 90) "…"
+        }
+        print line
+    }
 EOF
     )
 
-    # Запуск wofi с поддержкой картинок (-I включает отображение иконок)
+    # Запуск wofi с поддержкой картинок
     CHOICE=$(gawk -v THUMB_DIR="$THUMB_DIR" "$PROG_PARSER" <<< "$CLIPHIST_LIST" | \
-             wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null -Dimage_size=80 -Dynamic_lines=true)
-    
-    # Если нажали ESC (ничего не выбрано), плавно завершаем скрипт
+             wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
+                  --width=700 --height=450 --columns=1 --hide-scroll \
+                  --insensitive --location=center --prompt="Буфер обмена" \
+                  -Dimage_size=64)
+
     [ -z "$CHOICE" ] && rm "$WOFI_STYLE" && exit 0
 
-    # Проверяем, выбрали ли мы картинку или обычный текст
     if [ "${CHOICE::4}" = "img:" ]; then
         THUMB_FILE="${CHOICE:4}"
         CLIP_ID="${THUMB_FILE##*/}"
         CLIP_ID="${CLIP_ID%.*}"
-        # Передаем ID картинки во вторую фазу скрипта
         "$0" "DECODE_IMG_ID:$CLIP_ID"
     else
-        # Передаем обычную строку текста во вторую фазу скрипта
-        xargs -r -I {} "$0" "{}" <<< "$CHOICE"
+        # т.к. строка обрезана символом "…", ищем оригинал по id в начале строки
+        CLIP_ID="${CHOICE%%$'\t'*}"
+        printf "%s" "$CLIP_ID" | cliphist decode | wl-copy
     fi
 
 else
-    # Обработка выбора (вторая фаза)
-    if [[ "$@" == DECODE_IMG_ID:* ]]; then
-        # Если это была картинка, вырезаем префикс ID, декодируем её и копируем
-        CLIP_ID="${@#DECODE_IMG_ID:}"
+    if [[ "$1" == DECODE_IMG_ID:* ]]; then
+        CLIP_ID="${1#DECODE_IMG_ID:}"
         printf "%s" "$CLIP_ID" | cliphist decode | wl-copy
-    else
-        # Если это текст, обрабатываем стандартно
-        echo "$@" | cliphist decode | wl-copy
     fi
 fi
 
-# 4. Всегда удаляем файл темы при выходе
 rm "$WOFI_STYLE"
