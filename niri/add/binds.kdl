@@ -35,7 +35,7 @@ binds {
     Mod+K     { focus-window-up; }
     //Mod+L     { focus-column-right; }
     Mod+Grave { spawn "wofi"; }  
-    Mod+T { spawn "~/.config/waybar/theme.sh"; }
+    Mod+T { spawn-sh "bash ~/.config/waybar/theme.sh"; }
 
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Down  { move-window-down; }
@@ -151,7 +151,7 @@ binds {
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
     //Mod+W { toggle-column-tabbed-display; }
-    Mod+X { spawn "~/.config/waybar/powermenu.sh"; }
+    Mod+X { spawn-sh "bash ~/.config/waybar/powermenu.sh"; }
 
     Home { screenshot; }
     Ctrl+Print { screenshot-screen; }
