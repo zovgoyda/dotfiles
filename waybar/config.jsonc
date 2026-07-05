@@ -70,7 +70,7 @@
     },
      "custom/cliphist": {
      "format": "📋",
-     "on-click": "~/.config/waybar/cliphist.sh",
+     "on-click": "pgrep -f cliphist.sh > /dev/null && killall -f cliphist.sh || ~/.config/waybar/cliphist.sh",
      "tooltip": false
     }
 }
