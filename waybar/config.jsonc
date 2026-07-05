@@ -15,10 +15,10 @@
     ],
     "modules-right": [
         "tray",
-        "custom/cliphist"
+        "custom/cliphist",
         "niri/language",
         "pulseaudio",
-        "custom/power"
+        "custom/power",
     ],
 
     "niri/workspaces": {
