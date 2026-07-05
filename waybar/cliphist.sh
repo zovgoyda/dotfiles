@@ -45,7 +45,7 @@ window {
     margin: 2px 6px;
     background-color: transparent;
     border: 2px solid transparent;
-    min-height: 96px;
+    min-height: 140px;
 }
 #entry:hover {
     border: 2px solid ${color4};
@@ -54,6 +54,27 @@ window {
 #entry:selected {
     border: 2px solid ${color5};
     background-color: alpha(${color5}, 0.25);
+}
+/* Кнопка очистки истории — первая запись в списке, компактная */
+#entry:nth-child(1) {
+    min-height: 0px;
+    padding: 6px 12px;
+    margin: 0px 6px 4px 6px;
+    background-color: alpha(${color4}, 0.12);
+    border: 1px solid alpha(${color4}, 0.4);
+    border-radius: 8px;
+}
+#entry:nth-child(1):hover {
+    background-color: alpha(${color4}, 0.25);
+    border: 1px solid ${color4};
+}
+#entry:nth-child(1):selected {
+    background-color: alpha(${color5}, 0.3);
+    border: 1px solid ${color5};
+}
+#entry:nth-child(1) #text {
+    font-size: 12px;
+    color: alpha(${foreground}, 0.85);
 }
 #text {
     color: ${foreground};
@@ -114,7 +135,7 @@ if [ -z "$1" ]; then
         close(thumb)
 
         if (!exists && CONVERT_BIN != "") {
-            system("printf '%s' " id " | cliphist decode | " CONVERT_BIN " - -resize '240x240>' " thumb " 2>/dev/null")
+            system("printf '%s' " id " | cliphist decode | " CONVERT_BIN " - -resize '320x320>' " thumb " 2>/dev/null")
             exists = ((getline junk < thumb) >= 0)
             close(thumb)
         }
@@ -151,9 +172,9 @@ EOF
     CHOICE=$( { [ -n "$CLIPHIST_LIST" ] && printf '%s\n' "$CLEAR_LABEL"; \
                 gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" -v MAPFILE_PATH="$MAPFILE_PATH" "$PROG_PARSER" <<< "$CLIPHIST_LIST"; } | \
              wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
-                  --width=760 --height=520 --columns=1 --hide-scroll \
+                  --width=800 --height=580 --columns=1 --hide-scroll \
                   --insensitive --location=center --prompt="Буфер обмена" \
-                  -Dimage_size=120 )
+                  -Dimage_size=160 )
 
     [ -z "$CHOICE" ] && rm -f "$WOFI_STYLE" "$MAPFILE_PATH" && exit 0
 
