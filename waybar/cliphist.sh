@@ -100,7 +100,7 @@ if [ -z "$1" ]; then
             print "img:" THUMB_DIR "/" image
             next
         }
-        system("echo " grp[1] " | cliphist decode | " CONVERT_BIN " - -resize '128x128>' " THUMB_DIR "/" image " 2>/dev/null")
+        system("printf '%s' " grp[1] " | cliphist decode | " CONVERT_BIN " - -resize '128x128>' " THUMB_DIR "/" image " 2>/dev/null")
         if (!system("[ -f " THUMB_DIR "/" image " ]")) {
             print "img:" THUMB_DIR "/" image
         } else {
