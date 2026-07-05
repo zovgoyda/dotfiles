@@ -136,10 +136,9 @@ layer-rule {
 				layer-rule {
 					    match namespace="^wofi$"
 					        geometry-corner-radius 20
-						background-effect {
-						    blur true 
+						
 					                               }	    
 					
-								        }
+								      
 
 
