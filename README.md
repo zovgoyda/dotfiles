@@ -3,7 +3,7 @@
 
 
 
-sudo pacman -S --needed \
+    doas pacman -Syu --needed \
     niri \
     waybar \
     wofi \
@@ -26,7 +26,7 @@ sudo pacman -S --needed \
     xarchiver\
 
 
-    yay -S --needed \
+    paru -Syu --needed \
     cliphist \
     swaylock-effects \
     apple_cursor \
