@@ -2,7 +2,7 @@
 
 
 window {
-	    background-color: @bg; /* Замените transparent на ваш фоновый цвет */
+	    background-color: @bg;
 	        border: none;
 	}#outer-box {
     background-color: @bg;
@@ -34,6 +34,7 @@ window {
     color: @fg;
     font-size: 14px;
     margin-left: 5px;
+    opacity: 1;
 }
 
 #img {
