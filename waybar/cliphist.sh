@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+pkill -x wofi && exit 0
 # 1. Подгружаем цвета Pywal (с фолбэком на цвета из wofi/colors.css)
 WAL_COLORS="$HOME/.cache/wal/colors.sh"
 if [ -f "$WAL_COLORS" ]; then
