@@ -1,5 +1,8 @@
 # dotfiles
 мои дотфайлы хз
+
+
+
 sudo pacman -S --needed \
     niri \
     waybar \
