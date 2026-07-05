@@ -45,7 +45,7 @@ window {
     margin: 2px 6px;
     background-color: transparent;
     border: 2px solid transparent;
-    min-height: 32px;
+    min-height: 96px;
 }
 #entry:hover {
     border: 2px solid ${color4};
@@ -64,8 +64,8 @@ window {
     color: ${foreground};
 }
 #img {
-    border-radius: 6px;
-    margin-right: 8px;
+    border-radius: 8px;
+    margin-right: 10px;
 }
 EOF
 
@@ -75,6 +75,8 @@ CONVERT_BIN=$(command -v magick || command -v convert)
 # Папка для кэширования миниатюр изображений
 THUMB_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/cliphist/thumbs"
 mkdir -p "$THUMB_DIR"
+
+CLEAR_LABEL="🗑  Очистить историю буфера обмена"
 
 # Основная логика вызова меню
 if [ -z "$1" ]; then
@@ -90,19 +92,35 @@ if [ -z "$1" ]; then
         fi
     done
 
-    # Парсер: находит бинарные изображения и генерирует для них PNG-иконки,
-    # а длинные текстовые строки обрезает, чтобы не было переноса на 2 строки
+    if [ -z "$CONVERT_BIN" ]; then
+        notify-send "cliphist" "ImageMagick не найден: превью картинок отключены" 2>/dev/null
+    fi
+
+    MAPFILE_PATH=$(mktemp)
+
+    # Парсер:
+    # - находит бинарные изображения, генерирует для них PNG-превью покрупнее
+    # - у текстовых записей срезает id (чтобы не мозолил глаза) и длинные строки,
+    #   сохраняя связь id<->текст в MAPFILE_PATH для последующего decode
     PROG_PARSER=$(cat <<'EOF'
     /^[0-9]+\s<meta http-equiv=/ { next }
     match($0, /^([0-9]+)\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp|webp)/, grp) {
-        image = grp[1]"."grp[3]
-        if (!system("[ -f " THUMB_DIR "/" image " ]")) {
-            print "img:" THUMB_DIR "/" image
-            next
+        id = grp[1]
+        image = id"."grp[3]
+        thumb = THUMB_DIR "/" image
+
+        # быстрая проверка существования файла без лишнего subshell
+        exists = ((getline junk < thumb) >= 0)
+        close(thumb)
+
+        if (!exists && CONVERT_BIN != "") {
+            system("printf '%s' " id " | cliphist decode | " CONVERT_BIN " - -resize '240x240>' " thumb " 2>/dev/null")
+            exists = ((getline junk < thumb) >= 0)
+            close(thumb)
         }
-        system("printf '%s' " grp[1] " | cliphist decode | " CONVERT_BIN " - -resize '128x128>' " THUMB_DIR "/" image " 2>/dev/null")
-        if (!system("[ -f " THUMB_DIR "/" image " ]")) {
-            print "img:" THUMB_DIR "/" image
+
+        if (exists) {
+            print "img:" thumb
         } else {
             print $0
         }
@@ -110,37 +128,52 @@ if [ -z "$1" ]; then
     }
     {
         line = $0
-        if (length(line) > 90) {
-            line = substr(line, 1, 90) "…"
+        tabpos = index(line, "\t")
+        if (tabpos > 0) {
+            id = substr(line, 1, tabpos - 1)
+            text = substr(line, tabpos + 1)
+        } else {
+            id = ""
+            text = line
         }
-        print line
+        if (length(text) > 90) {
+            text = substr(text, 1, 90) "…"
+        }
+        if (id != "") {
+            print id "\t" text >> MAPFILE_PATH
+        }
+        print text
     }
 EOF
     )
 
-    if [ -z "$CONVERT_BIN" ]; then
-        notify-send "cliphist" "ImageMagick не найден: превью картинок отключены" 2>/dev/null
-    fi
-
-    # Запуск wofi с поддержкой картинок
-    CHOICE=$(gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" "$PROG_PARSER" <<< "$CLIPHIST_LIST" | \
+    # Запуск wofi с поддержкой картинок; первым пунктом — очистка истории
+    CHOICE=$( { [ -n "$CLIPHIST_LIST" ] && printf '%s\n' "$CLEAR_LABEL"; \
+                gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" -v MAPFILE_PATH="$MAPFILE_PATH" "$PROG_PARSER" <<< "$CLIPHIST_LIST"; } | \
              wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
-                  --width=700 --height=450 --columns=1 --hide-scroll \
+                  --width=760 --height=520 --columns=1 --hide-scroll \
                   --insensitive --location=center --prompt="Буфер обмена" \
-                  -Dimage_size=64)
+                  -Dimage_size=120 )
 
-    [ -z "$CHOICE" ] && rm "$WOFI_STYLE" && exit 0
+    [ -z "$CHOICE" ] && rm -f "$WOFI_STYLE" "$MAPFILE_PATH" && exit 0
 
-    if [ "${CHOICE::4}" = "img:" ]; then
+    if [ "$CHOICE" = "$CLEAR_LABEL" ]; then
+        cliphist wipe
+        rm -rf "${THUMB_DIR:?}"/*
+        notify-send "Буфер обмена" "История очищена" 2>/dev/null
+    elif [ "${CHOICE::4}" = "img:" ]; then
         THUMB_FILE="${CHOICE:4}"
         CLIP_ID="${THUMB_FILE##*/}"
         CLIP_ID="${CLIP_ID%.*}"
         "$0" "DECODE_IMG_ID:$CLIP_ID"
     else
-        # т.к. строка обрезана символом "…", ищем оригинал по id в начале строки
-        CLIP_ID="${CHOICE%%$'\t'*}"
-        printf "%s" "$CLIP_ID" | cliphist decode | wl-copy
+        CLIP_ID=$(awk -F'\t' -v want="$CHOICE" '{ t=index($0,"\t"); text=substr($0,t+1); if (text==want) { print $1; exit } }' "$MAPFILE_PATH")
+        if [ -n "$CLIP_ID" ]; then
+            printf "%s" "$CLIP_ID" | cliphist decode | wl-copy
+        fi
     fi
+
+    rm -f "$MAPFILE_PATH"
 
 else
     if [[ "$1" == DECODE_IMG_ID:* ]]; then
@@ -149,4 +182,4 @@ else
     fi
 fi
 
-rm "$WOFI_STYLE"
+rm -f "$WOFI_STYLE"
