@@ -34,7 +34,7 @@ window {
     background-color: alpha(${background}, 0.97);
     border: 2px solid ${color4};
     border-radius: 20px;
-    padding: 12px;
+    padding: 8px;
 }
 #input {
     background-color: alpha(${background}, 0.85);
@@ -46,9 +46,9 @@ window {
     font-size: 14px;
 }
 #entry {
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 0px;
-    margin: 2px;
+    margin: 0px;
     background-color: transparent;
     border: 2px solid transparent;
     min-width: 220px;
@@ -62,8 +62,9 @@ window {
     background-color: alpha(${color5}, 0.3);
 }
 #text {
-    color: ${foreground};
-    font-size: 13px;
+    opacity: 0;
+    min-height: 0px;
+    min-width: 0px;
 }
 #img, image {
     border-radius: 6px;
@@ -148,7 +149,7 @@ window {
     background-color: alpha(${background}, 0.97);
     border: 2px solid ${color4};
     border-radius: 20px;
-    padding: 12px;
+    padding: 8px;
 }
 
 #input {
@@ -162,9 +163,9 @@ window {
 }
 
 #entry {
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 0px;
-    margin: 2px;
+    margin: 0px;
     background-color: transparent;
     border: 2px solid transparent;
     min-width: 220px;
@@ -181,8 +182,9 @@ window {
 }
 
 #text {
-    color: ${foreground};
-    font-size: 13px;
+    opacity: 0;
+    min-height: 0px;
+    min-width: 0px;
 }
 
 #img, image {
