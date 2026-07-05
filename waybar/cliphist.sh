@@ -69,6 +69,9 @@ window {
 }
 EOF
 
+# Ищем ImageMagick: сначала magick (v7), иначе convert (v6)
+CONVERT_BIN=$(command -v magick || command -v convert)
+
 # Папка для кэширования миниатюр изображений
 THUMB_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/cliphist/thumbs"
 mkdir -p "$THUMB_DIR"
@@ -93,8 +96,16 @@ if [ -z "$1" ]; then
     /^[0-9]+\s<meta http-equiv=/ { next }
     match($0, /^([0-9]+)\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp|webp)/, grp) {
         image = grp[1]"."grp[3]
-        system("[ -f " THUMB_DIR "/" image " ] || echo " grp[1] " | cliphist decode | magick - -resize '128x128>' " THUMB_DIR "/" image)
-        print "img:" THUMB_DIR "/" image
+        if (!system("[ -f " THUMB_DIR "/" image " ]")) {
+            print "img:" THUMB_DIR "/" image
+            next
+        }
+        system("echo " grp[1] " | cliphist decode | " CONVERT_BIN " - -resize '128x128>' " THUMB_DIR "/" image " 2>/dev/null")
+        if (!system("[ -f " THUMB_DIR "/" image " ]")) {
+            print "img:" THUMB_DIR "/" image
+        } else {
+            print $0
+        }
         next
     }
     {
@@ -107,8 +118,12 @@ if [ -z "$1" ]; then
 EOF
     )
 
+    if [ -z "$CONVERT_BIN" ]; then
+        notify-send "cliphist" "ImageMagick не найден: превью картинок отключены" 2>/dev/null
+    fi
+
     # Запуск wofi с поддержкой картинок
-    CHOICE=$(gawk -v THUMB_DIR="$THUMB_DIR" "$PROG_PARSER" <<< "$CLIPHIST_LIST" | \
+    CHOICE=$(gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" "$PROG_PARSER" <<< "$CLIPHIST_LIST" | \
              wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
                   --width=700 --height=450 --columns=1 --hide-scroll \
                   --insensitive --location=center --prompt="Буфер обмена" \

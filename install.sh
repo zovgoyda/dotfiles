@@ -47,6 +47,11 @@ for config in "${CONFIGS[@]}"; do
 done
 
 echo ""
+echo "🔧 Выставляю права на исполнение для .sh скриптов..."
+find "$DOTFILES_DIR" -type f -name "*.sh" -exec chmod +x {} \;
+echo "✅ Права выставлены"
+
+echo ""
 echo "✨ Установка завершена!"
 echo ""
 echo "Теперь все конфиги синхронизированы с репо."
