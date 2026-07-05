@@ -72,5 +72,5 @@
      "format": "📋",
      "on-click": "rofi -modi clipboard:~/.config/waybar/scripts/cliphist.sh -show clipboard",
      "tooltip": false
-    }
+    },
 }
