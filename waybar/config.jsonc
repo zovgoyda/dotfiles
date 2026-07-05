@@ -18,7 +18,7 @@
         "custom/cliphist",
         "niri/language",
         "pulseaudio",
-        "custom/power",
+        "custom/power"
     ],
 
     "niri/workspaces": {
@@ -67,10 +67,10 @@
         "format": "⏻ ",
         "tooltip": false,
         "on-click": "/home/goyda/.config/waybar/powermenu.sh"
-    }
+    },
      "custom/cliphist": {
      "format": "📋",
      "on-click": "rofi -modi clipboard:~/.config/waybar/scripts/cliphist.sh -show clipboard",
      "tooltip": false
-    },
+    }
 }
