@@ -40,41 +40,41 @@ window {
     padding: 0px;
 }
 #entry {
-    border-radius: 8px;
-    padding: 6px 10px;
-    margin: 2px 6px;
-    background-color: transparent;
+    border-radius: 12px;
+    padding: 10px;
+    margin: 6px;
+    background-color: alpha(${color4}, 0.08);
     border: 2px solid transparent;
-    min-height: 140px;
+    min-width: 170px;
+    min-height: 170px;
 }
 #entry:hover {
     border: 2px solid ${color4};
-    background-color: alpha(${color4}, 0.15);
+    background-color: alpha(${color4}, 0.18);
 }
 #entry:selected {
     border: 2px solid ${color5};
-    background-color: alpha(${color5}, 0.25);
+    background-color: alpha(${color5}, 0.28);
 }
-/* Кнопка очистки истории — первая запись в списке, компактная */
-#entry:nth-child(1) {
-    min-height: 0px;
-    padding: 6px 12px;
-    margin: 0px 6px 4px 6px;
-    background-color: alpha(${color4}, 0.12);
-    border: 1px solid alpha(${color4}, 0.4);
+#text {
+    color: ${foreground};
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+}
+#text:selected {
+    color: ${foreground};
+}
+#img {
     border-radius: 8px;
 }
+/* Кнопка очистки истории — выделяем цветом среди плиток */
+#entry:nth-child(1) {
+    background-color: alpha(${color5}, 0.15);
+    border: 2px solid alpha(${color5}, 0.4);
+}
 #entry:nth-child(1):hover {
-    background-color: alpha(${color4}, 0.25);
-    border: 1px solid ${color4};
-}
-#entry:nth-child(1):selected {
     background-color: alpha(${color5}, 0.3);
-    border: 1px solid ${color5};
-}
-#entry:nth-child(1) #text {
-    font-size: 12px;
-    color: alpha(${foreground}, 0.85);
+    border: 2px solid ${color5};
 }
 #text {
     color: ${foreground};
@@ -157,8 +157,8 @@ if [ -z "$1" ]; then
             id = ""
             text = line
         }
-        if (length(text) > 90) {
-            text = substr(text, 1, 90) "…"
+        if (length(text) > 36) {
+            text = substr(text, 1, 36) "…"
         }
         if (id != "") {
             print id "\t" text >> MAPFILE_PATH
@@ -172,9 +172,9 @@ EOF
     CHOICE=$( { [ -n "$CLIPHIST_LIST" ] && printf '%s\n' "$CLEAR_LABEL"; \
                 gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" -v MAPFILE_PATH="$MAPFILE_PATH" "$PROG_PARSER" <<< "$CLIPHIST_LIST"; } | \
              wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
-                  --width=800 --height=580 --columns=1 --hide-scroll \
+                  --width=820 --height=560 --columns=4 --hide-scroll \
                   --insensitive --location=center --prompt="Буфер обмена" \
-                  -Dimage_size=160 )
+                  -Dimage_size=100 )
 
     [ -z "$CHOICE" ] && rm -f "$WOFI_STYLE" "$MAPFILE_PATH" && exit 0
 
