@@ -32,4 +32,6 @@
     apple_cursor \
     adw-gtk-theme \
     cosmic-icon-theme \
-    python-pywal
+    python-pywal \
+    where-is-my-sddm-theme-git \
+    qt6-declarative \
