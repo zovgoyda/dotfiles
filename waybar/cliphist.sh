@@ -33,8 +33,8 @@ if [[ "$1" == DECODE_IMG_ID:* ]]; then
 fi
 
 # --- Toggle: если окно уже открыто — закрываем его вместо повторного открытия ---
-if pgrep -f "wofi --dmenu.*--prompt=Буфер обмена" >/dev/null; then
-    pkill -f "wofi --dmenu.*--prompt=Буфер обмена"
+if pgrep -f -- "--prompt=Буфер обмена" >/dev/null; then
+    pkill -f -- "--prompt=Буфер обмена"
     exit 0
 fi
 
