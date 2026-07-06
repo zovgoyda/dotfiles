@@ -11,10 +11,7 @@
     thunar \
     firefox \
     wl-clipboard \
-    swaybg \
-    brightnessctl \
-    playerctl \
-    wireplumber \
+    swaybg \ 
     libcanberra \
     pavucontrol \
     imagemagick \
@@ -24,7 +21,8 @@
     ttf-font-awesome \
     polkit-gnome \
     xarchiver\
-    
+    wlroots \ 0.20
+    cmake \
 
 
 
@@ -33,7 +31,6 @@
     swaylock-effects \
     apple_cursor \
     adw-gtk-theme \
-    cosmic-icon-theme \
     python-pywal \
     greetd \
     cage \
