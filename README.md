@@ -24,6 +24,8 @@
     ttf-font-awesome \
     polkit-gnome \
     xarchiver\
+    qt5-declarative \
+
 
 
     paru -Syu --needed \
