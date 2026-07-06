@@ -55,13 +55,14 @@ echo "✅ Права выставлены"
 echo ""
 echo "🖥  Настраиваю greetd + gtkgreet..."
 
-if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || [ ! -x /usr/bin/gtkgreet ]; then
-    echo "⚠️  Не найдены greetd/cage/gtkgreet. Установи сначала:"
-    echo "    yay -S greetd cage greetd-gtkgreet-git"
+if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || [ ! -x /usr/bin/gtkgreet ] || [ ! -f /etc/dinit.d/greetd ]; then
+    echo "⚠️  Не найдены greetd/cage/gtkgreet/greetd-dinit. Установи сначала:"
+    echo "    yay -S greetd greetd-dinit cage greetd-gtkgreet-git"
 else
     # Отключаем SDDM, если он ещё стоит и активен
-    if systemctl is-enabled sddm &>/dev/null; then
-        sudo systemctl disable --now sddm.service
+    if [ -f /etc/dinit.d/boot.d/sddm ] || [ -L /etc/dinit.d/boot.d/sddm ]; then
+        sudo dinitctl disable sddm
+        sudo dinitctl stop sddm
         echo "✅ SDDM отключён"
     fi
 
@@ -88,8 +89,7 @@ command = "cage -s -- gtkgreet -s $GREETD_THEME_DIR/style.css"
 user = "greeter"
 EOF
 
-    sudo systemctl enable greetd.service
-    sudo systemctl set-default graphical.target
+    sudo dinitctl enable greetd
 
     echo "✅ greetd настроен и включён (vt1, sessions: niri-session)"
     echo "   Дальнейшая синхронизация фона/цветов идёт без sudo через"
