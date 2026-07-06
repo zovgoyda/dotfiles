@@ -92,13 +92,11 @@ EOF
 
     sudo dinitctl enable greetd
 
-    echo "✅ greetd настроен и включён (vt1, sessions: niri-session)"
-    echo "   Дальнейшая синхронизация фона/цветов идёт без sudo через"
-    echo "   waybar/sync-greetd-theme.sh (уже подключено в theme.sh)"
+    echo "✅ greetd настроен и включён (vt1, sessions: niri)"
 fi
 
 echo ""
 echo "✨ Установка завершена!"
 echo ""
-echo "Теперь все конфиги синхронизированы с репо."
-echo "После git pull изменения будут видны сразу!"
+echo "Теперь все конфиги синхронизированы с репо." 
+echo "После git pull изменения будут видны сраз
