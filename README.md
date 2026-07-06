@@ -24,7 +24,7 @@
     ttf-font-awesome \
     polkit-gnome \
     xarchiver\
-    qt5-declarative \
+    
 
 
 
@@ -35,5 +35,6 @@
     adw-gtk-theme \
     cosmic-icon-theme \
     python-pywal \
-    where-is-my-sddm-theme-git \
-    qt6-declarative \
+    greetd \
+    cage \
+    greetd-gtkgreet-git \

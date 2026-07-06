@@ -51,39 +51,49 @@ echo "🔧 Выставляю права на исполнение для .sh с
 find "$DOTFILES_DIR" -type f -name "*.sh" -exec chmod +x {} \;
 echo "✅ Права выставлены"
 
-# --- SDDM: тема логина, синхронизирующаяся с обоями/pywal ---
+# --- greetd + gtkgreet: лёгкая замена SDDM ---
 echo ""
-echo "🖥  Настраиваю тему SDDM..."
+echo "🖥  Настраиваю greetd + gtkgreet..."
 
-if ! pacman -Qi where-is-my-sddm-theme-git &>/dev/null && [ ! -d "/usr/share/sddm/themes/where_is_my_sddm_theme" ]; then
-    echo "⚠️  Тема not found. Установи сначала: yay -S where-is-my-sddm-theme-git"
+if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || [ ! -x /usr/bin/gtkgreet ]; then
+    echo "⚠️  Не найдены greetd/cage/gtkgreet. Установи сначала:"
+    echo "    yay -S greetd cage greetd-gtkgreet-git"
 else
-    SDDM_THEMES_DIR="/usr/local/share/sddm-themes"
-    SDDM_THEME_DIR="$SDDM_THEMES_DIR/where_is_my_sddm_theme"
-
-    # Директория для тем в пользовательском владении — чтобы дальше
-    # писать в неё (менять фон/цвета) можно было БЕЗ sudo
-    if [ ! -d "$SDDM_THEMES_DIR" ] || [ ! -w "$SDDM_THEMES_DIR" ]; then
-        sudo mkdir -p "$SDDM_THEMES_DIR"
-        sudo chown "$(id -u):$(id -g)" "$SDDM_THEMES_DIR"
+    # Отключаем SDDM, если он ещё стоит и активен
+    if systemctl is-enabled sddm &>/dev/null; then
+        sudo systemctl disable --now sddm.service
+        echo "✅ SDDM отключён"
     fi
 
-    # Копируем свежую тему из системного каталога (только если ещё не скопирована)
-    if [ ! -d "$SDDM_THEME_DIR" ] && [ -d "/usr/share/sddm/themes/where_is_my_sddm_theme" ]; then
-        cp -r "/usr/share/sddm/themes/where_is_my_sddm_theme" "$SDDM_THEME_DIR"
-        echo "✅ Тема скопирована в $SDDM_THEME_DIR"
+    # Директория с темой greeter'а — во владении пользователя,
+    # чтобы sync-greetd-theme.sh мог обновлять обои/цвета БЕЗ sudo
+    GREETD_THEME_DIR="/etc/greetd/theme"
+    if [ ! -d "$GREETD_THEME_DIR" ] || [ ! -w "$GREETD_THEME_DIR" ]; then
+        sudo mkdir -p "$GREETD_THEME_DIR"
+        sudo chown "$(id -u):$(id -g)" "$GREETD_THEME_DIR"
     fi
 
-    # Настраиваем SDDM использовать нашу директорию и эту тему (нужен sudo один раз)
-    sudo mkdir -p /etc/sddm.conf.d
-    sudo tee /etc/sddm.conf.d/theme.conf > /dev/null <<EOF
-[Theme]
-Current=where_is_my_sddm_theme
-ThemeDir=$SDDM_THEMES_DIR
+    # Список сессий, которые может запустить gtkgreet
+    sudo tee /etc/greetd/environments > /dev/null <<EOF
+niri-session
 EOF
-    echo "✅ /etc/sddm.conf.d/theme.conf настроен"
+
+    # Основной конфиг greetd (нужен sudo один раз)
+    sudo tee /etc/greetd/config.toml > /dev/null <<EOF
+[terminal]
+vt = 1
+
+[default_session]
+command = "cage -s -- gtkgreet -s $GREETD_THEME_DIR/style.css"
+user = "greeter"
+EOF
+
+    sudo systemctl enable greetd.service
+    sudo systemctl set-default graphical.target
+
+    echo "✅ greetd настроен и включён (vt1, sessions: niri-session)"
     echo "   Дальнейшая синхронизация фона/цветов идёт без sudo через"
-    echo "   waybar/sync-sddm-theme.sh (уже подключено в theme.sh)"
+    echo "   waybar/sync-greetd-theme.sh (уже подключено в theme.sh)"
 fi
 
 echo ""
