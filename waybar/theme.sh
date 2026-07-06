@@ -220,5 +220,6 @@ niri msg action load-config-file 2>/dev/null
 if pgrep -x kitty &>/dev/null; then
     kill -SIGUSR1 $(pgrep -x kitty) 2>/dev/null
 fi
+bash "$HOME/.config/waybar/sync-sddm-theme.sh"
 
 notify-send "Тема применена" "$(basename "$WALLPAPER")" 2>/dev/null
