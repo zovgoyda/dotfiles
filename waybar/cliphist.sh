@@ -33,9 +33,15 @@ if [[ "$1" == DECODE_IMG_ID:* ]]; then
 fi
 
 # --- Toggle: если окно уже открыто — закрываем его вместо повторного открытия ---
-if pgrep -f -- "--prompt=Буфер обмена" >/dev/null; then
-    pkill -f -- "--prompt=Буфер обмена"
-    exit 0
+LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/cliphist-wofi.pid"
+if [ -f "$LOCKFILE" ]; then
+    OLD_PID=$(cat "$LOCKFILE" 2>/dev/null)
+    if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+        kill "$OLD_PID" 2>/dev/null
+        rm -f "$LOCKFILE"
+        exit 0
+    fi
+    rm -f "$LOCKFILE"
 fi
 
 # 2. Стиль для wofi — крупные квадратные плитки, чистый минимал
@@ -166,11 +172,18 @@ PROG_PARSER=$(cat <<'EOF'
 EOF
 )
 
-CHOICE=$(gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" -v MAPFILE_PATH="$MAPFILE_PATH" "$PROG_PARSER" <<< "$CLIPHIST_LIST" | \
-         wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
-              --width=920 --height=640 --columns=3 --hide-scroll \
-              --insensitive --location=center --prompt="Буфер обмена" \
-              -Dimage_size=210)
+WOFI_OUT=$(mktemp)
+wofi -I --dmenu --style "$WOFI_STYLE" --cache-file=/dev/null \
+     --width=920 --height=640 --columns=3 --hide-scroll \
+     --insensitive --location=center --prompt="Буфер обмена" \
+     -Dimage_size=210 < <(gawk -v THUMB_DIR="$THUMB_DIR" -v CONVERT_BIN="$CONVERT_BIN" -v MAPFILE_PATH="$MAPFILE_PATH" "$PROG_PARSER" <<< "$CLIPHIST_LIST") \
+     > "$WOFI_OUT" &
+WOFI_PID=$!
+echo "$WOFI_PID" > "$LOCKFILE"
+wait "$WOFI_PID" 2>/dev/null
+rm -f "$LOCKFILE"
+CHOICE=$(cat "$WOFI_OUT")
+rm -f "$WOFI_OUT"
 
 [ -z "$CHOICE" ] && rm -f "$WOFI_STYLE" "$MAPFILE_PATH" && exit 0
 
