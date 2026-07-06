@@ -1,7 +1,7 @@
 @import url("colors.css");
 
 * {
-    font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+    font-family: "JetBrains Mono", Roboto, Helvetica, Arial, sans-serif;
     font-size: 13px;
 }
 
@@ -53,12 +53,24 @@ button:hover {
 #pulseaudio,
 #language,
 #tray,
-#custom-power {
+#custom-power,
+#custom-theme {
     padding: 0 12px;
     color: @fg;
     background-color: alpha(@fg, 0.1);
     margin: 4px 2px;
     border-radius: 6px;
+}
+
+/* Иконки Font Awesome 6 Free требуют именно это имя шрифта и вес 900 (solid),
+   иначе глиф не находится и место остаётся пустым */
+#cpu,
+#memory,
+#pulseaudio,
+#language,
+#custom-power {
+    font-family: "Font Awesome 6 Free", "JetBrains Mono", sans-serif;
+    font-weight: 900;
 }
 
 #custom-cliphist {
@@ -72,7 +84,8 @@ button:hover {
 #pulseaudio:hover,
 #language:hover,
 #clock:hover,
-#custom-power:hover {
+#custom-power:hover,
+#custom-theme:hover {
     background-color: alpha(@fg, 0.2);
 }
 
@@ -92,4 +105,8 @@ button:hover {
 
 #custom-power:hover {
     background-color: alpha(@danger, 0.4);
+}
+
+#custom-theme {
+    font-size: 15px;
 }

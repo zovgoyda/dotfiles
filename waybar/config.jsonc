@@ -18,6 +18,7 @@
         "custom/cliphist",
         "niri/language",
         "pulseaudio",
+        "custom/theme",
         "custom/power"
     ],
 
@@ -62,6 +63,12 @@
             "default": ["", "", ""]
         },
         "on-click": "pgrep -x pavucontrol > /dev/null && killall pavucontrol || pavucontrol"
+    },
+    "custom/theme": {
+        "exec": "~/.config/waybar/theme-status.sh",
+        "on-click": "~/.config/waybar/theme-toggle.sh",
+        "interval": 2,
+        "tooltip": false
     },
     "custom/power": {
         "format": "⏻ ",
