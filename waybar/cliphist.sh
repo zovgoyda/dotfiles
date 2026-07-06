@@ -32,6 +32,12 @@ if [[ "$1" == DECODE_IMG_ID:* ]]; then
     exit 0
 fi
 
+# --- Toggle: если окно уже открыто — закрываем его вместо повторного открытия ---
+if pgrep -f "wofi --dmenu.*--prompt=Буфер обмена" >/dev/null; then
+    pkill -f "wofi --dmenu.*--prompt=Буфер обмена"
+    exit 0
+fi
+
 # 2. Стиль для wofi — крупные квадратные плитки, чистый минимал
 WOFI_STYLE=$(mktemp)
 cat <<EOF > "$WOFI_STYLE"
