@@ -29,11 +29,11 @@
         }
     },
     "cpu": {
-        "format": "{usage}% ",
+        "format": "{usage}% ",
         "tooltip": false
     },
     "memory": {
-        "format": "{}% "
+        "format": "{}% "
     },
     "clock": {
         "format": "{:%H:%M}",
@@ -43,23 +43,23 @@
         "spacing": 10
     },
     "niri/language": {
-        "format": "{} ",
+        "format": "{} ",
         "format-en": "EN",
         "format-ru": "RU"
     },
     "pulseaudio": {
         "format": "{volume}% {icon}",
-        "format-bluetooth": "{volume}% {icon}",
-        "format-bluetooth-muted": " {icon}",
-        "format-muted": "",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-bluetooth-muted": " {icon}",
+        "format-muted": "",
         "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
         },
         "on-click": "pgrep -x pavucontrol > /dev/null && killall pavucontrol || pavucontrol"
     },
@@ -71,6 +71,7 @@
      "custom/cliphist": {
      "format": "📋",
      "on-click": "~/.config/waybar/cliphist.sh",
-     "tooltip": false
+     "on-click-right": "~/.config/waybar/cliphist.sh clear",
+     "tooltip-format": "ЛКМ — открыть историю\nПКМ — очистить историю"
     }
 }
