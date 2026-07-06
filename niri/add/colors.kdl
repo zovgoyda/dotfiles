@@ -1,11 +1,11 @@
 overview {
-    backdrop-color "#0c151d"
+    backdrop-color "#100c1b"
 }
 
 layout {
-    background-color "#0c151d"
+    background-color "#100c1b"
     focus-ring {
-        active-color "#1E54A8"
-        inactive-color "#5c6570"
+        active-color "#A748A3"
+        inactive-color "#5f5b6f"
     }
 }

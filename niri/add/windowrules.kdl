@@ -8,8 +8,8 @@ window-rule {
 	    match app-id="org.pulseaudio.pavucontrol"
 	        
 	        open-floating true
-		    max-width 600
-		    max-height 600
+		    max-width 800
+		    max-height 800
 		    default-floating-position x=2550 y=20
 		  	    }
 
