@@ -73,7 +73,7 @@
     "custom/power": {
         "format": "\uf011",
         "tooltip": false,
-        "on-click": "/home/goyda/.config/waybar/powermenu.sh"
+        "on-click": "~/.config/waybar/powermenu.sh"
     },
      "custom/cliphist": {
      "format": "📋",

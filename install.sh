@@ -76,7 +76,7 @@ else
 
     # Список сессий, которые может запустить gtkgreet
     sudo tee /etc/greetd/environments > /dev/null <<EOF
-niri-session
+niri
 EOF
 
     # Основной конфиг greetd (нужен sudo один раз)
@@ -85,8 +85,9 @@ EOF
 vt = 1
 
 [default_session]
-command = "cage -s -- gtkgreet -s $GREETD_THEME_DIR/style.css"
+command = "env GTK_THEME=adw-gtk3-dark cage -s -- gtkgreet -s /etc/greetd/theme/style.css"
 user = "greeter"
+
 EOF
 
     sudo dinitctl enable greetd
