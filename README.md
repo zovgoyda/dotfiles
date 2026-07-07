@@ -35,4 +35,4 @@
     python-pywal \
     greetd \
     cage \
-    regreet-bin \
+    greet-regreet-git \
