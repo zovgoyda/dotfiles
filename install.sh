@@ -55,50 +55,49 @@ echo "✅ Права выставлены"
 echo ""
 echo "🖥 Настраиваю greetd + regreet..."
 if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || ! command -v regreet &>/dev/null || [ ! -f /etc/dinit.d/greetd ]; then
- echo "⚠️ Не найдены greetd/cage/regreet/greetd-dinit. Установи сначала:"
- echo " paru -S greetd greetd-dinit cage greetd-regreet-git"
+    echo "⚠️ Не найдены greetd/cage/regreet/greetd-dinit. Установи сначала:"
+    echo " paru -S greetd greetd-dinit cage greetd-regreet-git"
 else
-    # Отключаем SDDM, если он ещё стоит и активен
-    if [ -f /etc/dinit.d/boot.d/sddm ] || [ -L /etc/dinit.d/boot.d/sddm ]; then
-        sudo dinitctl disable sddm
-        sudo dinitctl stop sddm
-        echo "✅ SDDM отключён"
-    fi
-
-    # Директория для конфигов regreet
-    REGREET_DIR="/etc/greetd/regreet.toml"
+    # Корректные пути для конфигов regreet
+    REGREET_FILE="/etc/greetd/regreet.toml"
     GREETD_THEME_DIR="/etc/greetd/theme"
     
-    if [ ! -d "$GREETD_THEME_DIR" ] || [ ! -w "$GREETD_THEME_DIR" ]; then
+    # Пересоздаем директорию темы greetd с корректными системными правами
+    if [ ! -d "$GREETD_THEME_DIR" ]; then
         sudo mkdir -p "$GREETD_THEME_DIR"
-        sudo chown "$(id -u):$(id -g)" "$GREETD_THEME_DIR"
     fi
+    # Даем права и root, и системному пользователю greeter
+    sudo chown -R greeter:greeter "$GREETD_THEME_DIR"
+    sudo chmod 755 "$GREETD_THEME_DIR"
     
-    # Даем права на запись в файл конфига regreet, чтобы обновлять его без sudo
-    if [ ! -f "/etc/greetd/regreet.toml" ]; then
-        sudo touch /etc/greetd/regreet.toml
+    # Создаем и настраиваем права на конфигурационный файл regreet.toml
+    if [ ! -f "$REGREET_FILE" ]; then
+        sudo touch "$REGREET_FILE"
     fi
-    sudo chown "$(id -u):$(id -g)" /etc/greetd/regreet.toml
+    # greeter должен владеть файлом, а твоя группа иметь право записи через waybar
+    sudo chown greeter:$(id -g) "$REGREET_FILE"
+    sudo chmod 664 "$REGREET_FILE"
 
-    # Список сессий для greetd
+    # Настраиваем доступную сессию для greetd
     sudo tee /etc/greetd/environments > /dev/null <<EOF
 niri
 EOF
 
-    # Основной конфиг greetd (запускает cage -> regreet)
+    # Основной конфиг greetd (запуск cage без лишних переменных)
     sudo tee /etc/greetd/config.toml > /dev/null <<EOF
 [terminal]
 vt = 1
 
 [default_session]
-command = "cage -s -- regreet"
+command = "cage -s -m last -- regreet"
 user = "greeter"
 EOF
 
+    # Включаем службу через dinit
     sudo dinitctl enable greetd
     echo "✅ greetd + regreet настроены и включены!"
-
 fi
+
 echo ""
 echo "✨ Установка завершена!"
 echo ""

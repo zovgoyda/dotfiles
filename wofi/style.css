@@ -4,16 +4,16 @@ window {
 }
 
 #outer-box {
-    background-color: alpha(#0c151d, 0.97);
-    border: 2px solid #245699;
+    background-color: alpha(#090d17, 0.97);
+    border: 2px solid #3B7FC1;
     border-radius: 20px;
     padding: 8px;
 }
 
 #input {
-    background-color: alpha(#0c151d, 0.85);
-    color: #c2c4c6;
-    border: 2px solid #245699;
+    background-color: alpha(#090d17, 0.85);
+    color: #c1c2c5;
+    border: 2px solid #3B7FC1;
     border-radius: 12px;
     margin-bottom: 8px;
     padding: 10px 15px;
@@ -30,18 +30,18 @@ window {
 }
 
 #entry:hover {
-    border: 2px solid #245699;
-    background-color: alpha(#245699, 0.2);
+    border: 2px solid #3B7FC1;
+    background-color: alpha(#3B7FC1, 0.2);
 }
 
 #entry:selected {
-    border: 2px solid #1E54A8;
-    background-color: alpha(#1E54A8, 0.3);
+    border: 2px solid #578CBA;
+    background-color: alpha(#578CBA, 0.3);
 }
 
 #text {
     opacity: 1;
-    color: #c2c4c6;
+    color: #c1c2c5;
     font-size: 14px;
     margin-left: 5px;
 }
