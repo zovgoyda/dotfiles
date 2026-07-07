@@ -54,10 +54,9 @@ echo "✅ Права выставлены"
 # --- greetd + regreet: лёгкая замена SDDM ---
 echo ""
 echo "🖥 Настраиваю greetd + regreet..."
-
 if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || ! command -v regreet &>/dev/null || [ ! -f /etc/dinit.d/greetd ]; then
-    echo "⚠️ Не найдены greetd/cage/regreet/greetd-dinit. Установи сначала:"
-    echo " yay -S greetd greetd-dinit cage regreet-bin"
+ echo "⚠️ Не найдены greetd/cage/regreet/greetd-dinit. Установи сначала:"
+ echo " paru -S greetd greetd-dinit cage greetd-regreet-git"
 else
     # Отключаем SDDM, если он ещё стоит и активен
     if [ -f /etc/dinit.d/boot.d/sddm ] || [ -L /etc/dinit.d/boot.d/sddm ]; then
