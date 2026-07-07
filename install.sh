@@ -51,13 +51,13 @@ echo "🔧 Выставляю права на исполнение для .sh с
 find "$DOTFILES_DIR" -type f -name "*.sh" -exec chmod +x {} \;
 echo "✅ Права выставлены"
 
-# --- greetd + gtkgreet: лёгкая замена SDDM ---
+# --- greetd + regreet: лёгкая замена SDDM ---
 echo ""
-echo "🖥  Настраиваю greetd + gtkgreet..."
+echo "🖥 Настраиваю greetd + regreet..."
 
-if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || [ ! -x /usr/bin/gtkgreet ] || [ ! -f /etc/dinit.d/greetd ]; then
-    echo "⚠️  Не найдены greetd/cage/gtkgreet/greetd-dinit. Установи сначала:"
-    echo "    yay -S greetd greetd-dinit cage greetd-gtkgreet-git"
+if ! command -v greetd &>/dev/null || ! command -v cage &>/dev/null || ! command -v regreet &>/dev/null || [ ! -f /etc/dinit.d/greetd ]; then
+    echo "⚠️ Не найдены greetd/cage/regreet/greetd-dinit. Установи сначала:"
+    echo " yay -S greetd greetd-dinit cage regreet-bin"
 else
     # Отключаем SDDM, если он ещё стоит и активен
     if [ -f /etc/dinit.d/boot.d/sddm ] || [ -L /etc/dinit.d/boot.d/sddm ]; then
@@ -66,35 +66,40 @@ else
         echo "✅ SDDM отключён"
     fi
 
-    # Директория с темой greeter'а — во владении пользователя,
-    # чтобы sync-greetd-theme.sh мог обновлять обои/цвета БЕЗ sudo
+    # Директория для конфигов regreet
+    REGREET_DIR="/etc/greetd/regreet.toml"
     GREETD_THEME_DIR="/etc/greetd/theme"
+    
     if [ ! -d "$GREETD_THEME_DIR" ] || [ ! -w "$GREETD_THEME_DIR" ]; then
         sudo mkdir -p "$GREETD_THEME_DIR"
         sudo chown "$(id -u):$(id -g)" "$GREETD_THEME_DIR"
     fi
+    
+    # Даем права на запись в файл конфига regreet, чтобы обновлять его без sudo
+    if [ ! -f "/etc/greetd/regreet.toml" ]; then
+        sudo touch /etc/greetd/regreet.toml
+    fi
+    sudo chown "$(id -u):$(id -g)" /etc/greetd/regreet.toml
 
-    # Список сессий, которые может запустить gtkgreet
+    # Список сессий для greetd
     sudo tee /etc/greetd/environments > /dev/null <<EOF
 niri
 EOF
 
-    # Основной конфиг greetd (нужен sudo один раз)
+    # Основной конфиг greetd (запускает cage -> regreet)
     sudo tee /etc/greetd/config.toml > /dev/null <<EOF
 [terminal]
 vt = 1
 
 [default_session]
-command = "env GTK_THEME=adw-gtk3-dark cage -s -- gtkgreet -s /etc/greetd/theme/style.css"
+command = "cage -s -- regreet"
 user = "greeter"
-
 EOF
 
     sudo dinitctl enable greetd
+    echo "✅ greetd + regreet настроены и включены!"
 
-    echo "✅ greetd настроен и включён (vt1, sessions: niri)"
 fi
-
 echo ""
 echo "✨ Установка завершена!"
 echo ""
