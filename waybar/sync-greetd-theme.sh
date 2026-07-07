@@ -10,7 +10,7 @@ WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
 exec 2>/dev/null # Скрываем логи
 
 if [ ! -w "$REGREET_CONF" ] || [ ! -w "$GREETD_THEME_DIR" ]; then
-    exit 0 # Тихий выход, если нет прав
+    exit 0 
 fi
 
 if [ -f "$WAL_COLORS" ]; then
@@ -18,6 +18,8 @@ if [ -f "$WAL_COLORS" ]; then
 else
     background="#0b0e19"
     foreground="#c2c2c5"
+    color4="#8A778F"
+    color5="#5999D0"
 fi
 
 if [ -f "$WALLPAPER_FILE" ]; then
@@ -28,23 +30,58 @@ if [ -z "$WALLPAPER" ] || [ ! -f "$WALLPAPER" ]; then
     exit 0
 fi
 
-# Копируем обои в доступное для greeter место
+# 1. Копируем обои
 cp "$WALLPAPER" "$GREETD_THEME_DIR/wall.png" 2>/dev/null
 
-# Генерируем конфигурацию ReGreet с поддержкой GTK темы и обоев
+# 2. Генерируем кастомный CSS для принудительного применения цветов Pywal и темной темы
+cat > "$GREETD_THEME_DIR/regreet.css" <<EOF
+/* Принудительный темный режим для всех элементов */
+window, dialog, box, label, entry, button {
+    color: ${foreground};
+}
+
+/* Окно логина (карточка по центру) */
+.card, dialog {
+    background-color: alpha(${background}, 0.85);
+    border: 2px solid ${color4};
+    border-radius: 16px;
+    padding: 25px;
+}
+
+/* Поля ввода */
+entry {
+    background-color: alpha(${foreground}, 0.06);
+    border: 2px solid ${color4};
+    border-radius: 10px;
+}
+entry:focus {
+    border-color: ${color5};
+}
+
+/* Кнопки */
+button {
+    background-color: alpha(${color5}, 0.2);
+    border: 1px solid ${color5};
+    border-radius: 8px;
+}
+button:hover {
+    background-color: alpha(${color5}, 0.4);
+}
+EOF
+
+# 3. Генерируем конфигурацию ReGreet с правильными командами dinit (loginctl)
 cat > "$REGREET_CONF" <<EOF
 [background]
 path = "$GREETD_THEME_DIR/wall.png"
 fit = "Cover"
 
 [GTK]
-# Используем темную тему, которая у вас прописана
-theme_name = "adw-gtk3-dark"
-icon_theme_name = "Adwaita"
+# Накладываем наш CSS-файл с цветами поверх стандартной темы
+custom_css = "$GREETD_THEME_DIR/regreet.css"
 font_name = "JetBrains Mono 12"
 
 [commands]
-# Команда завершения работы
-reboot = [ "systemctl", "reboot" ]
-poweroff = [ "systemctl", "poweroff" ]
+# Исправлено на loginctl для dinit/artix
+reboot = [ "loginctl", "reboot" ]
+poweroff = [ "loginctl", "poweroff" ]
 EOF
