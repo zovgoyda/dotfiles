@@ -23,6 +23,7 @@
     xarchiver\
     wlroots \ 0.20
     cmake \
+    greetd-dinit
 
 
 
@@ -34,4 +35,4 @@
     python-pywal \
     greetd \
     cage \
-    greetd-gtkgreet-git \
+    regreet-bin \
