@@ -15,7 +15,7 @@
 
 ## 🚀 БЫСТРАЯ УСТАНОВКА 
 ```bash
-curl -s https://raw.githubusercontent.com/zovgoyda/dotfiles/main/setup.sh | bash
+curl -s https://raw.githubusercontent.com/zovgoyda/dotfiles/main/install-all.sh | bash
 ```
 
 **Или вручную:**
