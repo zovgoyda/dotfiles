@@ -148,11 +148,13 @@ if [ "$USE_AUR" = true ]; then
     OPT_PACKAGES+=("swaylock-effects")
     OPT_PACKAGES+=("adw-gtk-theme")
     OPT_PACKAGES+=("greetd-regreet-git")
+    OPT_PACKAGES+=("cage-git")
     echo "  - cliphist (история буфера обмена)"
     echo "  - swaylock-effects (красивая блокировка)"
     echo "  - python-pywal (генерация цветов из обоев)"
     echo "  - adw-gtk-theme (красивая GTK тема)"
     echo "  - greetd-regreet-git (красивый экран входа)"
+    echo "  - cage-git (красивый compositor)"
 else
     echo "  - cliphist (история буфера обмена)"
     echo "  - swaylock (стандартная блокировка)"
