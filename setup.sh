@@ -125,20 +125,20 @@ echo ""
 
 # ==================== УСТАНОВКА ПАКЕТОВ ====================
 log_step "Устанавливаю основные пакеты..."
-$INSTALL_CMD ${BASE_PACKAGES[@]} &> /dev/null
+$INSTALL_CMD ${BASE_PACKAGES[@]}
 log_success "Основные пакеты установлены"
 
 log_step "Устанавливаю greetd..."
-$INSTALL_CMD ${GREETD_PACKAGES[@]} &> /dev/null
+$INSTALL_CMD ${GREETD_PACKAGES[@]}
 log_success "Greetd установлен"
 
 if [ "$USE_AUR" = true ] && command -v paru &> /dev/null; then
     log_step "Устанавливаю AUR пакеты..."
-    $AUR_CMD ${OPT_PACKAGES[@]} &> /dev/null || true
+    $AUR_CMD ${OPT_PACKAGES[@]} || true
     log_success "AUR пакеты установлены"
 else
     log_step "Устанавливаю опциональные пакеты..."
-    $INSTALL_CMD ${OPT_PACKAGES[@]} &> /dev/null || true
+    $INSTALL_CMD ${OPT_PACKAGES[@]} || true
     log_success "Опциональные пакеты установлены"
 fi
 
@@ -248,7 +248,7 @@ else
     echo "3️⃣  Для смены обоев и генерации темы:"
     echo "    ~/.config/waybar/theme.sh"
     echo ""
-    echo "4️⃣  (Опционально) Для синхрон��зации greetd в реальном времени:"
+    echo "4️⃣  (Опционально) Для синхронизации greetd в реальном времени:"
     echo "    bash ~/.config/waybar/sync-greetd-watcher.sh &"
     echo "    # Или добавь в niri конфиг: exec-once = [\"~/.config/waybar/sync-greetd-watcher.sh\"]"
     echo ""
