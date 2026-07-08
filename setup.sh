@@ -105,7 +105,7 @@ BASE_PACKAGES=(
     noto-fonts-cjk
 )
 
-GREETD_PACKAGES=(greetd cage)
+GREETD_PACKAGES=(greetd cage-git)
 case "$INIT_SYSTEM" in
     systemd) GREETD_PACKAGES+=(greetd) ;;
     dinit) GREETD_PACKAGES+=(greetd-dinit) ;;
