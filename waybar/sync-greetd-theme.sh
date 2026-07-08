@@ -1,8 +1,6 @@
 #!/bin/bash
 # Синхронизирует фон и цвета экрана входа (greetd + regreet)
 # с текущими обоями и pywal-палитрой.
-# 
-# Используется автоматически из theme.sh при смене обоев/цветов
 
 set -e
 
@@ -40,7 +38,7 @@ if [ -z "$WALLPAPER" ] || [ ! -f "$WALLPAPER" ]; then
 fi
 
 # ========== 1. КОПИРУЕМ ОБОИ ==========
-cp "$WALLPAPER" "$GREETD_THEME_DIR/wall.png" 2>/dev/null
+cp "$WALLPAPER" "$GREETD_THEME_DIR/wall.png" 2>/dev/null || true
 
 # ========== 2. ГЕНЕРИРУЕМ CSS С ПРАВИЛЬНОЙ ПОДСТАНОВКОЙ ПЕРЕМЕННЫХ ==========
 # Конвертируем hex цвета в RGB для rgba()
@@ -68,24 +66,15 @@ entry {
 }
 CSSEOF
 
-chmod 644 "$GREETD_THEME_DIR/regreet.css"
-chmod 644 "$GREETD_THEME_DIR/wall.png"
+chmod 644 "$GREETD_THEME_DIR/regreet.css" 2>/dev/null || true
+chmod 644 "$GREETD_THEME_DIR/wall.png" 2>/dev/null || true
 
-# ========== 3. КОНФИГУРАЦИЯ REGREET ==========
-cat > "$REGREET_CONF" << TOMLEOF
-[background]
-path = "$GREETD_THEME_DIR/wall.png"
-fit = "Cover"
+# ========== 3. ОБНОВЛЯЕМ КОНФИГ REGREET ==========
+if [ -f "$REGREET_CONF" ]; then
+    # Обновляем фон на рабочем столе в regreet
+    sed -i 's|background = .*|background = "file:///etc/greetd/theme/wall.png"|' "$REGREET_CONF" 2>/dev/null || true
+    # Обновляем CSS
+    sed -i 's|.*css_file.*|    css_file = "/etc/greetd/theme/regreet.css"|' "$REGREET_CONF" 2>/dev/null || true
+fi
 
-[GTK]
-custom_css = "$GREETD_THEME_DIR/regreet.css"
-font_name = "JetBrains Mono 12"
-application_prefer_dark_theme = true
-gtk_theme_name = "Adwaita-dark"
-
-[commands]
-reboot = [ "loginctl", "reboot" ]
-poweroff = [ "loginctl", "poweroff" ]
-TOMLEOF
-
-chmod 644 "$REGREET_CONF"
+exit 0

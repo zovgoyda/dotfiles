@@ -2,7 +2,7 @@
     "layer": "top",
     "position": "top",
     "height": 30,
-    "width": 2408,
+    // "width": 2408,  // УДАЛЕНО: niri автоматически разместит по всей ширине
     "spacing": 4,
 
     "modules-left": [
