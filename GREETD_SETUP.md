@@ -9,87 +9,179 @@
 - ✅ Цвета (из pywal палитры)
 - ✅ Темная тема GTK
 
-## Установка
+## Быстрый старт
 
-### 1. Убедись, что установлены зависимости:
-
-```bash
-sudo pacman -S inotify-tools  # Arch Linux
-# или
-sudo apt install inotify-tools  # Debian/Ubuntu
-```
-
-### 2. Дай права на исполнение скриптам:
+### 1. Убедись, что установлены зависимости
 
 ```bash
-chmod +x ~/.config/waybar/sync-greetd-theme.sh
-chmod +x ~/.config/waybar/sync-greetd-watcher.sh
+bash deps.sh
 ```
 
-### 3. Создай необходимые директории и файлы:
+### 2. Установи конфигурации
 
 ```bash
-sudo mkdir -p /etc/greetd/theme
-sudo touch /etc/greetd/regreet.toml
-sudo chown -R greeter:greeter /etc/greetd/theme
-sudo chmod 755 /etc/greetd/theme
+bash install.sh
 ```
 
-### 4. Запусти синхронизацию вручную (опционально):
+### 3. Синхронизация работает через `theme.sh`
+
+При каждой смене тем через `~/.config/waybar/theme.sh` greetd/regreet автоматически обновляется.
+
+### 4. (Опционально) Включи мониторинг в реальном времени
 
 ```bash
-bash ~/.config/waybar/sync-greetd-theme.sh
+# Запусти watcher в фоне
+bash ~/.config/waybar/sync-greetd-watcher.sh &
+
+# Или добавь в свой конфиг WM (например niri):
+# exec-once = ["~/.config/waybar/sync-greetd-watcher.sh"]
 ```
-
-## Использование
-
-### Вариант 1: Запуск в фоне (рекомендуется)
-
-Добавь в свой `~/.config/hyprland/hyprland.conf` или другой конфиг WM:
-
-```bash
-exec-once = ~/.config/waybar/sync-greetd-watcher.sh &
-```
-
-Это запустит watcher, который будет следить за изменениями pywal палитры и обоев в реальном времени.
-
-### Вариант 2: Ручной запуск при смене темы
-
-Скрипт уже вызывается из `waybar/theme.sh`, так что синхронизация происходит автоматически при смене темы через waybar.
 
 ## Как это работает
 
-1. **sync-greetd-theme.sh** — основной скрипт, который:
-   - Читает палитру из `~/.cache/wal/colors.sh`
-   - Копирует текущие обои в `/etc/greetd/theme/wall.png`
-   - Генерирует CSS с правильными цветами
-   - Обновляет конфиг regreet с темной темой
+### sync-greetd-theme.sh
 
-2. **sync-greetd-watcher.sh** — следит за файлами (`colors.sh` и `current_wallpaper`) и автоматически запускает синхронизацию при изменении
+Основной скрипт, который:
+1. Читает текущие цвета из `~/.cache/wal/colors.sh`
+2. Копирует обои в `/etc/greetd/theme/wall.png`
+3. Генерирует CSS с правильной цветопередачей
+4. Обновляет конфиг regreet
+
+**Вызывается автоматически из:**
+- `~/.config/waybar/theme.sh` при смене темы
+
+### sync-greetd-watcher.sh
+
+Фоновый скрипт для мониторинга в реальном времени:
+1. Следит за `~/.cache/wal/colors.sh`
+2. Следит за `~/.cache/current_wallpaper`
+3. Автоматически запускает синхронизацию при изменении
+
+**Требует:** `inotify-tools`
+
+## Интеграция с различными init systems
+
+### systemd
+
+```bash
+# Статус
+sudo systemctl status greetd
+
+# Перезагрузка
+sudo systemctl restart greetd
+
+# Логи
+journalctl -u greetd -f
+```
+
+### dinit (рекомендуется для Artix)
+
+```bash
+# Статус
+sudo dinitctl status greetd
+
+# Перезагрузка
+sudo dinitctl restart greetd
+
+# Логи
+sudo tail -f /var/log/dinit/greetd.log
+```
+
+### runit
+
+```bash
+# Статус
+sudo sv status greetd
+
+# Перезагрузка
+sudo sv restart greetd
+
+# Логи
+sudo tail -f /var/log/runit/greetd/current
+```
 
 ## Трубблшутинг
 
-### CSS не применяется
-
-Убедись, что:
-- `/etc/greetd/theme/regreet.css` существует и имеет правильные права
-- `gtk_theme_name = "Adwaita-dark"` в `/etc/greetd/regreet.toml`
-- ReGreet перезагружен (`sudo systemctl restart greetd`)
-
-### Цвета не синхронизируются
+### Цвета не применяются
 
 ```bash
-# Проверь, что pywal палитра генерируется:
-ls -la ~/.cache/wal/colors.sh
+# 1. Проверь, что pywal создал палитру
+cat ~/.cache/wal/colors.sh
 
-# Запусти скрипт вручную с выводом ошибок:
+# 2. Запусти синхронизацию вручную
 bash ~/.config/waybar/sync-greetd-theme.sh
+
+# 3. Проверь сгенерированный CSS
+cat /etc/greetd/theme/regreet.css
+
+# 4. Перезагрузи greetd
+sudo systemctl restart greetd  # systemd
+sudo dinitctl restart greetd   # dinit
+```
+
+### CSS синтаксис ошибок
+
+```bash
+# Проверь правильность RGB конвертации
+# В файле должны быть цифры, а не переменные
+grep rgba /etc/greetd/theme/regreet.css
+
+# Пример правильного вывода:
+# background-color: rgba(11, 14, 25, 0.85) !important;
 ```
 
 ### Watcher не запускается
 
-Проверь, что `inotify-tools` установлен:
+```bash
+# Проверь inotify-tools
+which inotifywait
+
+# Запусти с отладкой
+bash -x ~/.config/waybar/sync-greetd-watcher.sh
+```
+
+## Дополнительная настройка
+
+### Изменить шрифт в greetd
 
 ```bash
-which inotifywait
+# Отредактируй sync-greetd-theme.sh
+sed -i 's/JetBrains Mono 12/Твой Шрифт 14/g' ~/.config/waybar/sync-greetd-theme.sh
 ```
+
+### Изменить прозрачность фона
+
+```bash
+# В sync-greetd-theme.sh найди строку:
+# background-color: rgba($BG_RGB, 0.85)
+# Измени 0.85 на значение от 0 (прозрачный) до 1 (непрозрачный)
+```
+
+### Использовать светлую тему
+
+```bash
+# В sync-greetd-theme.sh измени:
+gtk_theme_name = "Adwaita-dark"
+# На:
+gtk_theme_name = "Adwaita"
+```
+
+## Файлы конфигурации
+
+- `/etc/greetd/config.toml` — основной конфиг greetd
+- `/etc/greetd/regreet.toml` — конфиг regreet (генерируется скриптом)
+- `/etc/greetd/theme/regreet.css` — CSS для оформления (генерируется скриптом)
+- `/etc/greetd/theme/wall.png` — обои (генерируется скриптом)
+
+## Безопасность
+
+Правам на файлы:
+- `regreet.toml` → `greeter:$(id -g)` с правами `664`
+- `/etc/greetd/theme` → `greeter:greeter` с правами `755`
+- Это позволяет скриптам в твоей сессии обновлять файлы
+
+## Вопросы?
+
+Смотри комментарии в скриптах:
+- `~/.config/waybar/sync-greetd-theme.sh`
+- `~/.config/waybar/sync-greetd-watcher.sh`
