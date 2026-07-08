@@ -101,6 +101,7 @@ BASE_PACKAGES=(
     ttf-font-awesome
     polkit-gnome
     xarchiver
+    inotify-tools
 )
 
 for pkg in "${BASE_PACKAGES[@]}"; do
@@ -111,27 +112,26 @@ echo ""
 echo "📋 Пакеты для greetd:"
 GREETD_PACKAGES=(
     greetd
-    cage
 )
 
 case "$INIT_SYSTEM" in
     systemd)
-        GREETD_PACKAGES+=("greetd")
+        GREETD_PACKAGES+=("cage")
         echo "  - greetd (systemd)"
         echo "  - cage"
         ;;
     dinit)
-        GREETD_PACKAGES+=("greetd-dinit")
+        GREETD_PACKAGES+=("greetd-dinit" "cage-git")
         echo "  - greetd-dinit"
         echo "  - cage-git"
         ;;
     runit)
-        GREETD_PACKAGES+=("greetd-runit")
+        GREETD_PACKAGES+=("greetd-runit" "cage")
         echo "  - greetd-runit"
         echo "  - cage"
         ;;
     s6)
-        GREETD_PACKAGES+=("greetd-s6")
+        GREETD_PACKAGES+=("greetd-s6" "cage")
         echo "  - greetd-s6"
         echo "  - cage"
         ;;
@@ -141,11 +141,11 @@ echo ""
 echo "📋 Опциональные пакеты (из AUR/extra):"
 OPT_PACKAGES=(
     cliphist
-    swaylock-effects
     python-pywal
 )
 
 if [ "$USE_AUR" = true ]; then
+    OPT_PACKAGES+=("swaylock-effects")
     OPT_PACKAGES+=("adw-gtk-theme")
     OPT_PACKAGES+=("greetd-regreet-git")
     echo "  - cliphist (история буфера обмена)"
@@ -159,12 +159,6 @@ else
     echo "  - python-pywal (генерация цветов из обоев)"
     OPT_PACKAGES+=("swaylock")
 fi
-
-echo ""
-echo "📋 Зависимости для скриптов:"
-echo "  - inotify-tools (синхронизация greetd в реальном времени)"
-
-BASE_PACKAGES+=("inotify-tools")
 
 echo ""
 echo "========================================"
@@ -205,5 +199,5 @@ echo "========================================"
 echo "✨ Все зависимости установлены!"
 echo "========================================"
 echo ""
-echo "Дальше запусти: bash install.sh"
+echo "Дальше запусти: bash setup.sh"
 echo ""
