@@ -22,8 +22,8 @@ echo "✅ ОС: $OS_PRETTY"
 # ========== ОПРЕДЕЛЯЕМ PACKAGE MANAGER ==========
 if command -v pacman &> /dev/null; then
     PKG_MANAGER="pacman"
-    INSTALL_CMD="sudo pacman -Syu --needed"
-    AUR_CMD="paru -Syu --needed"
+    INSTALL_CMD="sudo pacman -Syu --noconfirm --needed"
+    AUR_CMD="paru -Syu --noconfirm --needed"
     USE_AUR=true
 elif command -v apt &> /dev/null; then
     PKG_MANAGER="apt"
@@ -168,7 +168,7 @@ echo "Начинаю установку..."
 echo "========================================"
 echo ""
 
-# ========== УСТАНОВКА ОСНОВНЫХ ПАКЕТОВ ==========
+# ========== УСТАНОВКА ОСНОВНЫХ ПА��ЕТОВ ==========
 echo "🔧 Устанавливаю основные пакеты..."
 $INSTALL_CMD ${BASE_PACKAGES[@]}
 echo "✅ Основные пакеты установлены"
