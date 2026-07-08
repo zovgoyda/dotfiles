@@ -13,19 +13,26 @@
 - **Cliphist** — история буфера обмена с превью картинок
 - **Swaylock** — блокировка экрана
 
-## 🚀 Быстрая установка
+## 🚀 БЫСТРАЯ УСТАНОВКА (одна команда!)
 
 ```bash
-# 1. Клонируй репо
+curl -s https://raw.githubusercontent.com/zovgoyda/dotfiles/main/setup.sh | bash
+```
+
+**Или вручную:**
+
+```bash
 git clone https://github.com/zovgoyda/dotfiles ~/.config/dotfiles
 cd ~/.config/dotfiles
-
-# 2. Установи зависимости (автоматический выбор д��стро и init system)
-bash deps.sh
-
-# 3. Установи конфигурации
-bash install.sh
+bash setup.sh
 ```
+
+**Всё!** Скрипт сам:
+- ✅ Определит ОС и init system
+- ✅ Установит все зависимости
+- ✅ Создаст symlink'и конфигов
+- ✅ Настроит greetd + regreet
+- ✅ Даст права на скрипты
 
 ## 📦 Системные требования
 
@@ -46,8 +53,9 @@ bash install.sh
 
 ```
 .
-├── deps.sh                          # Установка зависимостей
-├── install.sh                       # Установка конфигураций
+├── setup.sh                         # 🚀 ГЛАВНЫЙ СКРИПТ (делает всё)
+├── deps.sh                          # Отдельная установка зависимостей
+├── install.sh                       # Отдельная установка конфигов
 ├── GREETD_SETUP.md                  # Дополнительная настройка greetd
 ├── README.md                        # Этот файл
 │
@@ -221,7 +229,8 @@ journalctl -u wayland-session -f
 ## 🙋 Вопросы?
 
 Смотри
+- `setup.sh` — главный скрипт установки
 - `~/.config/waybar/theme.sh` — основной скрипт смены тем
 - `~/.config/waybar/sync-greetd-watcher.sh` — автоматическая синхронизация
-- `install.sh` — что устанавливается
+- `install.sh` — что устанавливается вручную
 - `deps.sh` — какие пакеты нужны
