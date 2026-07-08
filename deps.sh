@@ -123,7 +123,7 @@ case "$INIT_SYSTEM" in
     dinit)
         GREETD_PACKAGES+=("greetd-dinit")
         echo "  - greetd-dinit"
-        echo "  - cage"
+        echo "  - cage-git"
         ;;
     runit)
         GREETD_PACKAGES+=("greetd-runit")
