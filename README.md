@@ -23,7 +23,7 @@
     xarchiver\
     wlroots \ 0.20
     cmake \
-    greetd-dinit
+    greetd-dinit \
 
 
 
