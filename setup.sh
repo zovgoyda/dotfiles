@@ -8,9 +8,9 @@
 set -e
 
 echo ""
-echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║     🎨 Dotfiles: Полная установка для Niri + Pywal         ║"
-echo "╚═══════════════════════════════════════════════════════════╝"
+echo "╔════════════════════════════════════════════════════════════╗"
+echo "║     🎨 Dotfiles: Полная установка для Niri + Pywal          ║"
+echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
 # ==================== ЦВЕТА ====================
@@ -101,7 +101,8 @@ log_step "Собираю список пакетов..."
 BASE_PACKAGES=(
     niri waybar wofi kitty thunar firefox wl-clipboard swaybg
     libcanberra pavucontrol imagemagick gawk ttf-jetbrains-mono
-    ttf-font-awesome polkit-gnome xarchiver inotify-tools
+    ttf-font-awesome polkit-gnome xarchiver inotify-tools fastfetch
+    noto-fonts-cjk
 )
 
 GREETD_PACKAGES=(greetd cage)
@@ -151,7 +152,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 mkdir -p "$CONFIG_DIR"
 
-CONFIGS=(waybar wofi gtk-3.0 gtk-4.0 kitty niri swaylock)
+CONFIGS=(waybar wofi gtk-3.0 gtk-4.0 kitty niri swaylock fastfetch)
 
 for config in "${CONFIGS[@]}"; do
     src="$DOTFILES_DIR/$config"
@@ -221,9 +222,9 @@ else
 fi
 
 echo ""
-echo "╔══════���════════════════════════════════════════════════════╗"
-echo "║                  ✨ УСТАНОВКА ЗАВЕРШЕНА! ✨                 ║"
-echo "╚═══════════════════════════════════════════════════════════╝"
+echo "╔════════════════════════════════════════════════════════════╗"
+echo "║                  ✨ УСТАНОВКА ЗАВЕРШЕНА! ✨                  ║"
+echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
 echo -e "${GREEN}📝 СЛЕДУЮЩИЕ ШАГИ:${NC}"
@@ -240,6 +241,9 @@ echo ""
 echo "4️⃣  (Опционально) Для синхронизации greetd в реальном времени:"
 echo "    bash ~/.config/waybar/sync-greetd-watcher.sh &"
 echo "    # Или добавь в niri конфиг: exec-once = [\"~/.config/waybar/sync-greetd-watcher.sh\"]"
+echo ""
+echo "5️⃣  Fastfetch установлен - показать информацию о системе:"
+echo "    fastfetch"
 echo ""
 echo -e "${BLUE}📖 Документация:${NC}"
 echo "    - README.md — полная документация"
