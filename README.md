@@ -13,8 +13,7 @@
 - **Cliphist** — история буфера обмена с превью картинок
 - **Swaylock** — блокировка экрана
 
-## 🚀 БЫСТРАЯ УСТАНОВКА (одна команда!)
-
+## 🚀 БЫСТРАЯ УСТАНОВКА 
 ```bash
 curl -s https://raw.githubusercontent.com/zovgoyda/dotfiles/main/setup.sh | bash
 ```
