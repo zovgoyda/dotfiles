@@ -159,6 +159,9 @@ killall waybar 2>/dev/null || true
 sleep 0.5
 waybar &
 
+# Перезагружаем niri чтобы применить новые цвета
+sudo -u $USER systemctl --user restart niri 2>/dev/null || true
+
 # Показываем уведомление
 notify-send "🎨 Тема" "Обновлены обои и цвета\n$(basename "$wallpaper")" 2>/dev/null
 

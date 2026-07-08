@@ -1,35 +1,29 @@
 window-rule {
-	    match app-id="org-tlauncher-tlauncher-rmo-TLauncher"
-	        open-floating true
-	}
-
+    match app-id="org-tlauncher-tlauncher-rmo-TLauncher"
+    open-floating true
+}
 
 window-rule {
-	    match app-id="org.pulseaudio.pavucontrol"
-	        
-	        open-floating true
-		    max-width 800
-		    max-height 800
-		    default-floating-position x=2550 y=20
-		  	    }
+    match app-id="org.pulseaudio.pavucontrol"
+    open-floating true
+    max-width 800
+    max-height 600
+    // Позиция адаптируется в зависимости от экрана (по умолчанию топ-право)
+}
 
-
-	    layer-rule {
-		        match namespace="^wofi$"
-			    geometry-corner-radius 20
-			      			}
-
-
+layer-rule {
+    match namespace="^wofi$"
+    geometry-corner-radius 20
+}
 
 // @id=wr_1776947182587145867 @name=kitty
 window-rule {
     match app-id="^kitty$"
     opacity 0.98
     background-effect {
-	    blur true
-	   }
+        blur true
+    }
 }
-
 
 // @id=wr_1776949251859049535 @name=yad
 window-rule {
@@ -113,32 +107,12 @@ window-rule {
     open-floating true
 }
 
-
 window-rule {
     geometry-corner-radius 10
     clip-to-geometry true
 }
 
-
-
-
-
-
-
 layer-rule {
-	    match namespace="^waybar$"
-	        geometry-corner-radius 12
-		   
-	
-
-				}
-
-				layer-rule {
-					    match namespace="^wofi$"
-					        geometry-corner-radius 20
-						
-					                               }	    
-					
-								      
-
-
+    match namespace="^waybar$"
+    geometry-corner-radius 12
+}

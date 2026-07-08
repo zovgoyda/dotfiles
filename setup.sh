@@ -115,7 +115,7 @@ esac
 
 OPT_PACKAGES=(cliphist python-pywal)
 if [ "$USE_AUR" = true ]; then
-    OPT_PACKAGES+=(swaylock-effects adw-gtk-theme greetd-regreet-git)
+    OPT_PACKAGES+=(swaylock-effects adw-gtk-theme greetd-regreet-git cage-git wlroots0.20)
 else
     OPT_PACKAGES+=(swaylock)
 fi
@@ -195,7 +195,7 @@ if command -v greetd &> /dev/null; then
 vt = 1
 
 [default_session]
-command = "cage -s -m last -- regreet"
+command = "cage-git -s -m last -- regreet"
 user = "greeter"
 EOF
     
@@ -241,7 +241,7 @@ else
     echo ""
     echo "1️⃣  (Опционально) Отредактируй конфиги:"
     echo "    nano ~/.config/niri/config.kdl"
-    echo "    nano ~/.config/waybar/config.json"
+    echo "    nano ~/.config/waybar/config.jsonc"
     echo ""
     echo "2️⃣  Перезагрузи сессию (Mod+Shift+R в niri) или перезагрузись"
     echo ""

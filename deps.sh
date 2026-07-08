@@ -116,8 +116,10 @@ GREETD_PACKAGES=(
 
 case "$INIT_SYSTEM" in
     systemd)
-        GREETD_PACKAGES+=("cage")
-        echo "  - greetd (systemd)"
+        GREETD_PACKAGES+=("cage-git")
+        GREETD_PACKAGES+=("wlroots0.20")
+        echo "  - cage-git"
+        echo "  - wlroots0.20"
         ;;
     dinit)
         GREETD_PACKAGES+=("greetd-dinit")
@@ -125,7 +127,7 @@ case "$INIT_SYSTEM" in
         ;;
     runit)
         GREETD_PACKAGES+=("greetd-runit")
-        echo "  - greetd-runit
+        echo "  - greetd-runit"
         ;;
     s6)
         GREETD_PACKAGES+=("greetd-s6")
@@ -144,13 +146,11 @@ if [ "$USE_AUR" = true ]; then
     OPT_PACKAGES+=("swaylock-effects")
     OPT_PACKAGES+=("adw-gtk-theme")
     OPT_PACKAGES+=("greetd-regreet-git")
-    OPT_PACKAGES+=("cage-git")
     echo "  - cliphist (история буфера обмена)"
     echo "  - swaylock-effects (красивая блокировка)"
     echo "  - python-pywal (генерация цветов из обоев)"
     echo "  - adw-gtk-theme (красивая GTK тема)"
     echo "  - greetd-regreet-git (красивый экран входа)"
-    echo "  - cage-git (красивый compositor)"
 else
     echo "  - cliphist (история буфера обмена)"
     echo "  - swaylock (стандартная блокировка)"
@@ -164,7 +164,7 @@ echo "Начинаю установку..."
 echo "========================================"
 echo ""
 
-# ========== УСТАНОВКА ОСНОВНЫХ ПА��ЕТОВ ==========
+# ========== УСТАНОВКА ОСНОВНЫХ ПАКЕТОВ ==========
 echo "🔧 Устанавливаю основные пакеты..."
 $INSTALL_CMD ${BASE_PACKAGES[@]}
 echo "✅ Основные пакеты установлены"
@@ -172,7 +172,11 @@ echo ""
 
 # ========== УСТАНОВКА GREETD ==========
 echo "🔧 Устанавливаю greetd..."
-$INSTALL_CMD ${GREETD_PACKAGES[@]}
+if [ "$USE_AUR" = true ]; then
+    $AUR_CMD ${GREETD_PACKAGES[@]} || true
+else
+    $INSTALL_CMD ${GREETD_PACKAGES[@]}
+fi
 echo "✅ Greetd установлен"
 echo ""
 
