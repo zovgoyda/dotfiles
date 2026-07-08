@@ -115,7 +115,7 @@ esac
 
 OPT_PACKAGES=(cliphist python-pywal)
 if [ "$USE_AUR" = true ]; then
-    OPT_PACKAGES+=(swaylock-effects adw-gtk-theme greetd-regreet-git cage-git)
+    OPT_PACKAGES+=(swaylock-effects adw-gtk-theme greetd-regreet-git)
 else
     OPT_PACKAGES+=(swaylock)
 fi
