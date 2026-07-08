@@ -35,23 +35,27 @@ sudo chown -R greeter:greeter /etc/greetd/theme
 sudo chmod 755 /etc/greetd/theme
 ```
 
-### 4. В��лючи systemd сервис (опционально, для автозапуска):
-
-```bash
-mkdir -p ~/.config/systemd/user
-cp .config/systemd/user/greetd-theme-sync.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now greetd-theme-sync.service
-
-# Проверить статус:
-systemctl --user status greetd-theme-sync.service
-```
-
-### 5. Запустить синхронизацию вручную:
+### 4. Запусти синхронизацию вручную (опционально):
 
 ```bash
 bash ~/.config/waybar/sync-greetd-theme.sh
 ```
+
+## Использование
+
+### Вариант 1: Запуск в фоне (рекомендуется)
+
+Добавь в свой `~/.config/hyprland/hyprland.conf` или другой конфиг WM:
+
+```bash
+exec-once = ~/.config/waybar/sync-greetd-watcher.sh &
+```
+
+Это запустит watcher, который будет следить за изменениями pywal палитры и обоев в реальном времени.
+
+### Вариант 2: Ручной запуск при смене темы
+
+Скрипт уже вызывается из `waybar/theme.sh`, так что синхронизация происходит автоматически при смене темы через waybar.
 
 ## Как это работает
 
@@ -63,36 +67,29 @@ bash ~/.config/waybar/sync-greetd-theme.sh
 
 2. **sync-greetd-watcher.sh** — следит за файлами (`colors.sh` и `current_wallpaper`) и автоматически запускает синхронизацию при изменении
 
-3. **greetd-theme-sync.service** — systemd сервис для автозапуска watcher при загрузке системы
-
-## Троблшутинг
-
-### Systemd сервис не запускается
-
-```bash
-# Проверить логи:
-journalctl --user -u greetd-theme-sync.service -f
-```
+## Трубблшутинг
 
 ### CSS не применяется
 
 Убедись, что:
 - `/etc/greetd/theme/regreet.css` существует и имеет правильные права
 - `gtk_theme_name = "Adwaita-dark"` в `/etc/greetd/regreet.toml`
-- ReGreet перезагружен (перезагрузись или запусти `sudo systemctl restart greetd`)
+- ReGreet перезагружен (`sudo systemctl restart greetd`)
 
 ### Цвета не синхронизируются
 
 ```bash
-# Проверить, что pywal палитра генерируется:
+# Проверь, что pywal палитра генерируется:
 ls -la ~/.cache/wal/colors.sh
 
-# Запустить скрипт вручную с выводом ошибок:
+# Запусти скрипт вручную с выводом ошибок:
 bash ~/.config/waybar/sync-greetd-theme.sh
 ```
 
-## Использование
+### Watcher не запускается
 
-Скрипты уже вызываются из `waybar/theme.sh`, так что синхронизация происходит при смене темы через waybar.
+Проверь, что `inotify-tools` установлен:
 
-Кроме того, если включен systemd сервис, синхронизация происходит в реальном времени при изменении pywal палитры.
+```bash
+which inotifywait
+```
