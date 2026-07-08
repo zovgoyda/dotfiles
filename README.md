@@ -23,7 +23,7 @@ curl -s https://raw.githubusercontent.com/zovgoyda/dotfiles/main/install-all.sh 
 ```bash
 git clone https://github.com/zovgoyda/dotfiles ~/.config/dotfiles
 cd ~/.config/dotfiles
-bash setup.sh
+bash install-all.sh
 ```
 
 **Всё!** Скрипт сам:
