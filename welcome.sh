@@ -46,12 +46,92 @@ read_choice() {
     echo "$response"
 }
 
+# ==================== ФУНКЦИЯ: НАСТРОЙКА МОНИТОРОВ ====================
+setup_monitors() {
+    echo ""
+    print_header "🖥️  Настройка мониторов"
+    
+    CONFIG_DIR="$HOME/.config"
+    NIRI_OUTPUTS="$CONFIG_DIR/niri/add/outputs.kdl"
+    
+    if ! command -v wlr-randr &> /dev/null; then
+        print_warning "wlr-randr не установлен, используем встроенные функции"
+        return
+    fi
+    
+    echo -e "${BLUE}Обнаруженные мониторы:${NC}"
+    echo ""
+    
+    # Получаем список мониторов
+    wlr-randr --help &>/dev/null || {
+        print_info "Пропускаем автоопределение мониторов"
+        return
+    }
+    
+    # Показываем текущую конфигурацию
+    if [ -f "$NIRI_OUTPUTS" ]; then
+        echo -e "${CYAN}Текущая конфигурация outputs.kdl:${NC}"
+        cat "$NIRI_OUTPUTS"
+        echo ""
+    fi
+    
+    monitor_choice=$(read_choice "Ты хочешь отредактировать конфиг мониторов? (да/нет)")
+    
+    if [ "$monitor_choice" = "да" ] || [ "$monitor_choice" = "yes" ] || [ "$monitor_choice" = "y" ]; then
+        if command -v nano &> /dev/null; then
+            nano "$NIRI_OUTPUTS"
+            print_success "Конфиг мониторов обновлен"
+        else
+            print_warning "nano не установлен, отредактируй вручную: $NIRI_OUTPUTS"
+        fi
+    fi
+    
+    # Обновляем координаты в window-rules для адаптивности
+    update_floating_positions
+}
+
+# ==================== ФУНКЦИЯ: АДАПТИВНАЯ ПОЗИЦИЯ ОКОН ====================
+update_floating_positions() {
+    echo ""
+    print_info "Адаптирую координаты окон к твоему разрешению..."
+    
+    CONFIG_DIR="$HOME/.config"
+    NIRI_WINDOWRULES="$CONFIG_DIR/niri/add/windowrules.kdl"
+    
+    if [ ! -f "$NIRI_WINDOWRULES" ]; then
+        return
+    fi
+    
+    # Получаем разрешение экрана
+    if command -v wlr-randr &> /dev/null 2>/dev/null; then
+        # Пытаемся получить ширину из wlr-randr
+        SCREEN_WIDTH=$(wlr-randr 2>/dev/null | grep -oP '\d+x\d+' | head -1 | cut -d'x' -f1 || echo "3440")
+    else
+        SCREEN_WIDTH=3440  # Значение по умолчанию
+    fi
+    
+    # Если разрешение отличается от стандартного (3440), масштабируем
+    if [ "$SCREEN_WIDTH" != "3440" ]; then
+        SCALE=$(echo "scale=3; $SCREEN_WIDTH / 3440" | bc 2>/dev/null || echo "1")
+        
+        print_info "Ширина экрана: ${SCREEN_WIDTH}px (масштаб: ${SCALE})"
+        
+        # Масштабируем позиции павконтрола (было x=2550)
+        NEW_X=$(echo "$SCALE * 2550" | bc | cut -d'.' -f1)
+        
+        # Создаём временный файл с обновленными координатами
+        sed -i "s/x=2550/x=$NEW_X/g" "$NIRI_WINDOWRULES"
+        
+        print_success "Позиции окон адаптирова��ы (x=$NEW_X)"
+    fi
+}
+
 # ==================== НАЧАЛО ====================
 clear
 echo ""
 echo -e "${MAGENTA}╔$(printf '=%.0s' {1..58})╗${NC}"
 echo -e "${MAGENTA}║${NC}  🎨 Добро пожаловать в Dotfiles!${NC}"
-echo -e "${MAGENTA}║${NC}${NC}  Давай наст��оим всё для тебя  🚀"
+echo -e "${MAGENTA}║${NC}${NC}  Давай настроим всё для тебя  🚀"
 echo -e "${MAGENTA}╚$(printf '=%.0s' {1..58})╝${NC}"
 echo ""
 
@@ -108,7 +188,10 @@ fi
 
 echo ""
 
-# ==================== 2. ПРОВЕРКА ЗАВИСИМОСТЕЙ ====================
+# ==================== 2. НАСТРОЙКА МОНИТОРОВ ====================
+setup_monitors
+
+# ==================== 3. ПРОВЕРКА ЗАВИСИМОСТЕЙ ====================
 print_header "2️⃣  Проверка зависимостей"
 
 echo -e "${BLUE}Проверяю необходимые программы...${NC}"
@@ -147,7 +230,7 @@ fi
 
 echo ""
 
-# ==================== 3. ГЕНЕРАЦИЯ НАЧАЛЬНОЙ ТЕМЫ ====================
+# ==================== 4. ГЕНЕРАЦИЯ НАЧАЛЬНОЙ ТЕМЫ ====================
 print_header "3️⃣  Генерация начальной темы"
 
 echo -e "${BLUE}Хочешь сгенерировать тему прямо сейчас?${NC}"
@@ -177,7 +260,7 @@ fi
 
 echo ""
 
-# ==================== 4. ОПЦИОНАЛЬНЫЕ СЕРВИСЫ ====================
+# ==================== 5. ОПЦИОНАЛЬНЫЕ СЕРВИСЫ ====================
 print_header "4️⃣  Опциональные сервисы в фоне"
 
 echo -e "${BLUE}Запустить дополнительные сервисы?${NC}"
@@ -205,7 +288,7 @@ fi
 
 echo ""
 
-# ==================== 5. ИНФОРМАЦИЯ О СИСТЕМЕ ====================
+# ==================== 6. ИНФОРМАЦИЯ О СИСТЕМЕ ====================
 print_header "5️⃣  Информация о системе"
 
 echo -e "${BLUE}Твоя система:${NC}"
@@ -233,6 +316,8 @@ echo -e "${YELLOW}💡 Советы:${NC}"
 echo "  1. Положи обои в: $WALLPAPER_DIR"
 echo "  2. Запусти theme.sh для смены обоев и генерации темы"
 echo "  3. Посмотри README.md для полной документации"
+echo "  4. Если мониторы выглядят странно, отредактируй:"
+echo "     ~/.config/niri/add/outputs.kdl"
 echo ""
 
 echo -e "${MAGENTA}🚀 Начинай с этого:${NC}"
