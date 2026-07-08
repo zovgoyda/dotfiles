@@ -118,22 +118,18 @@ case "$INIT_SYSTEM" in
     systemd)
         GREETD_PACKAGES+=("cage")
         echo "  - greetd (systemd)"
-        echo "  - cage-git"
         ;;
     dinit)
-        GREETD_PACKAGES+=("greetd-dinit" "cage-git")
+        GREETD_PACKAGES+=("greetd-dinit")
         echo "  - greetd-dinit"
-        echo "  - cage-git"
         ;;
     runit)
-        GREETD_PACKAGES+=("greetd-runit" "cage")
-        echo "  - greetd-runit"
-        echo "  - cage-git"
+        GREETD_PACKAGES+=("greetd-runit")
+        echo "  - greetd-runit
         ;;
     s6)
-        GREETD_PACKAGES+=("greetd-s6" "cage")
+        GREETD_PACKAGES+=("greetd-s6")
         echo "  - greetd-s6"
-        echo "  - cage-git"
         ;;
 esac
 
