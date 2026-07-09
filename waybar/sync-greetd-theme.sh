@@ -1,80 +1,65 @@
 #!/bin/bash
-# Синхронизирует фон и цвета экрана входа (greetd + regreet)
-# с текущими обоями и pywal-палитрой.
+# Синхронизация темы greetd с pywal
 
 set -e
 
-REGREET_CONF="/etc/greetd/regreet.toml"
-GREETD_THEME_DIR="/etc/greetd/theme"
 WAL_COLORS="$HOME/.cache/wal/colors.sh"
-WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
+GREETD_CONF="/etc/greetd/regreet.toml"
+GREETD_THEME="/etc/greetd/theme"
 
-# Тихо - без ошибок если нет прав
-exec 2>/dev/null
-
-# Проверяем доступ к необходимым файлам
-if [ ! -w "$REGREET_CONF" ] || [ ! -w "$GREETD_THEME_DIR" ]; then
-    exit 0 
-fi
-
-# Загружаем цвета pywal (или используем дефолтные)
-if [ -f "$WAL_COLORS" ]; then
-    source "$WAL_COLORS"
-else
-    background="#0b0e19"
-    foreground="#c2c2c5"
-    color4="#8A778F"
-    color5="#5999D0"
-fi
-
-# Читаем текущие обои
-if [ -f "$WALLPAPER_FILE" ]; then
-    WALLPAPER=$(cat "$WALLPAPER_FILE")
-fi
-
-# Выходим если нет обоев
-if [ -z "$WALLPAPER" ] || [ ! -f "$WALLPAPER" ]; then
+# Проверяем права доступа
+if [ ! -w "$GREETD_CONF" ] || [ ! -w "$GREETD_THEME" ]; then
     exit 0
 fi
 
-# ========== 1. КОПИРУЕМ ОБОИ ==========
-cp "$WALLPAPER" "$GREETD_THEME_DIR/wall.png" 2>/dev/null || true
-
-# ========== 2. ГЕНЕРИРУЕМ CSS С ПРАВИЛЬНОЙ ПОДСТАНОВКОЙ ПЕРЕМЕННЫХ ==========
-# Конвертируем hex цвета в RGB для rgba()
-BG_RGB=$(printf "%d, %d, %d" 0x${background:1:2} 0x${background:3:2} 0x${background:5:2})
-
-cat > "$GREETD_THEME_DIR/regreet.css" << CSSEOF
-window, main, .background {
-    background-color: transparent !important;
-    background-image: none !important;
-}
-
-/* Контейнер авторизации с цветами из pywal */
-box#container, box#login_box, dialog {
-    background-color: rgba($BG_RGB, 0.85) !important;
-    color: $foreground !important;
-    border: 2px solid $color4 !important;
-    border-radius: 16px !important;
-}
-
-/* Поля ввода */
-entry {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: $foreground !important;
-    border: 1px solid $color4 !important;
-}
-CSSEOF
-
-chmod 644 "$GREETD_THEME_DIR/regreet.css" 2>/dev/null || true
-chmod 644 "$GREETD_THEME_DIR/wall.png" 2>/dev/null || true
-
-# ========== 3. ОБНОВЛЯЕМ КОНФИГ REGREET ==========
-if [ -f "$REGREET_CONF" ]; then
-    # Обновляем фон на рабочем столе в regreet
-    sed -i 's|background = .*|background = "file:///etc/greetd/theme/wall.png"|' "$REGREET_CONF" 2>/dev/null || true
-    # Обновляем CSS
-    sed -i 's|.*css_file.*|    css_file = "/etc/greetd/theme/regreet.css"|' "$REGREET_CONF" 2>/dev/null || true
+# Загружаем цвета
+if [ ! -f "$WAL_COLORS" ]; then
+    exit 0
 fi
 
-exit 0
+source "$WAL_COLORS"
+
+# Копируем обои
+if [ -f "$HOME/.cache/current_wallpaper" ]; then
+    wallpaper=$(cat "$HOME/.cache/current_wallpaper")
+    if [ -f "$wallpaper" ]; then
+        cp "$wallpaper" "$GREETD_THEME/wall.png" 2>/dev/null || true
+    fi
+fi
+
+# Генерируем CSS для regreet
+cat > "$GREETD_THEME/regreet.css" 2>/dev/null << EOF || true
+* {
+    background-color: ${background:-#0b0e19};
+    color: ${foreground:-#c2c2c5};
+}
+
+window {
+    background-image: url("file://$GREETD_THEME/wall.png");
+    background-size: cover;
+}
+
+#login_box, dialog {
+    background-color: rgba(11, 14, 25, 0.85);
+    border: 2px solid ${color4:-#8A778F};
+    border-radius: 12px;
+}
+
+entry {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: ${foreground:-#c2c2c5};
+    border: 1px solid ${color4:-#8A778F};
+    border-radius: 6px;
+}
+
+button {
+    background-color: ${color4:-#8A778F};
+    color: #ffffff;
+}
+
+button:hover {
+    background-color: ${color5:-#5999D0};
+}
+EOF
+
+echo "✅ greetd синхронизирован"
