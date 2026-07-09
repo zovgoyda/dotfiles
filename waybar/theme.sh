@@ -1,21 +1,44 @@
 #!/bin/bash
 # Меняет обои и генерирует тему на всё окружение через pywal
 
-# ==================== КОНФИГ ====================
-# Получаем путь к папке со скриптом
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_DIR="${SCRIPT_DIR%/*}"  # ~/.config
-HOME_DIR="${CONFIG_DIR%/*}"     # ~
+set -e
 
-# Пути - УНИВЕРСАЛЬНЫЕ
+# ==================== КОНФИГ ====================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="${SCRIPT_DIR%/*}"
+HOME_DIR="${CONFIG_DIR%/*}"
+
 WALLPAPER_DIR="${WALLPAPER_DIR:-$HOME_DIR/wallpapers}"
-WAL_BIN="${WAL_BIN:-$(command -v wal 2>/dev/null || echo "$HOME_DIR/.local/bin/wal")}"
+WAL_BIN="${WAL_BIN:-$(command -v wal 2>/dev/null || true)}"
 THUMB_DIR="$HOME_DIR/.cache/theme_thumbs"
 WAL_COLORS="$HOME_DIR/.cache/wal/colors.sh"
 THUMB_SIZE=220
 
 mkdir -p "$HOME_DIR/.cache" "$THUMB_DIR"
 [ -f "$HOME_DIR/.cache/current_wallpaper" ] || touch "$HOME_DIR/.cache/current_wallpaper"
+
+# ==================== ФУНКЦИИ ====================
+error_exit() {
+    echo "❌ Ошибка: $1" >&2
+    exit 1
+}
+
+# ==================== ПРОВЕРКИ ====================
+if [ -z "$WAL_BIN" ] || [ ! -x "$WAL_BIN" ]; then
+    error_exit "pywal не найден. Установи: paru -S python-pywal или sudo apt install python3-pywal"
+fi
+
+if [ ! -d "$WALLPAPER_DIR" ]; then
+    error_exit "Папка обоев не найдена: $WALLPAPER_DIR. Создай папку и положи туда обои (jpg/png/webp)"
+fi
+
+# Проверяем есть ли обои
+shopt -s nullglob nocaseglob
+wallpapers=("$WALLPAPER_DIR"/*.{jpg,jpeg,png,webp})
+
+if [ ${#wallpapers[@]} -eq 0 ]; then
+    error_exit "Обои не найдены в $WALLPAPER_DIR. Положи хотя бы одно изображение."
+fi
 
 # ==================== ЗАГРУЗКА ЦВЕТОВ ====================
 if [ -f "$WAL_COLORS" ]; then
@@ -29,25 +52,23 @@ else
     color8="#666666"
 fi
 
+# ==================== СОЗДАЁМ СТИЛЬ WOFI ====================
 WOFI_STYLE=$(mktemp)
-WOFI_CONF=$(mktemp)
-: > "$WOFI_CONF"
-
-cat > "$WOFI_STYLE" << CSS
+cat > "$WOFI_STYLE" << 'CSS'
 window {
     background-color: transparent;
     border: none;
 }
 #outer-box {
-    background-color: alpha(${background}, 0.97);
-    border: 2px solid ${color4};
+    background-color: alpha(var(--bg, #2e1a47), 0.97);
+    border: 2px solid var(--color4, #4a2c73);
     border-radius: 20px;
     padding: 8px;
 }
 #input {
-    background-color: alpha(${background}, 0.85);
+    background-color: alpha(var(--bg, #2e1a47), 0.85);
     color: #ffffff;
-    border: 2px solid ${color4};
+    border: 2px solid var(--color4, #4a2c73);
     border-radius: 12px;
     margin-bottom: 8px;
     padding: 10px 15px;
@@ -62,12 +83,12 @@ window {
     min-width: 220px;
 }
 #entry:hover {
-    border: 2px solid ${color4};
-    background-color: alpha(${color4}, 0.2);
+    border: 2px solid var(--color4, #4a2c73);
+    background-color: alpha(var(--color4, #4a2c73), 0.2);
 }
 #entry:selected {
-    border: 2px solid ${color5};
-    background-color: alpha(${color5}, 0.3);
+    border: 2px solid var(--color5, #4a2c73);
+    background-color: alpha(var(--color5, #4a2c73), 0.3);
 }
 #text {
     opacity: 0;
@@ -81,32 +102,24 @@ window {
 }
 CSS
 
-CONVERT_BIN=$(command -v convert || command -v magick)
+CONVERT_BIN=$(command -v convert || command -v magick || true)
 
-# ==================== ПРОВЕРКИ ====================
-if [ ! -x "$WAL_BIN" ]; then
-    notify-send "Ошибка" "pywal не найден по пути $WAL_BIN\nУстанови через: paru -S python-pywal или sudo apt install python3-pywal" 2>/dev/null
-    rm "$WOFI_STYLE"
-    exit 1
-fi
-
-if [ ! -d "$WALLPAPER_DIR" ]; then
-    notify-send "Ошибка" "Папка не найдена: $WALLPAPER_DIR\nПоложи обои туда и попробуй снова" 2>/dev/null
-    rm "$WOFI_STYLE"
-    exit 1
-fi
-
-shopt -s nullglob nocaseglob
+# ==================== ВЫБОР ОБОЕВ ====================
 choice=$(
-    for img in "$WALLPAPER_DIR"/*.jpg "$WALLPAPER_DIR"/*.jpeg "$WALLPAPER_DIR"/*.png "$WALLPAPER_DIR"/*.webp; do
+    for img in "$WALLPAPER_DIR"/*.{jpg,jpeg,png,webp}; do
+        [ -f "$img" ] || continue
         name=$(basename "$img")
         thumb="$THUMB_DIR/$name.png"
 
-        if [ -n "$CONVERT_BIN" ]; then
+        if [ -n "$CONVERT_BIN" ] && command -v "$CONVERT_BIN" &>/dev/null; then
             if [ ! -f "$thumb" ] || [ "$img" -nt "$thumb" ]; then
-                "$CONVERT_BIN" "$img" -thumbnail "${THUMB_SIZE}x${THUMB_SIZE}" "$thumb" 2>/dev/null
+                "$CONVERT_BIN" "$img" -thumbnail "${THUMB_SIZE}x${THUMB_SIZE}" "$thumb" 2>/dev/null || true
             fi
-            echo "$name|$thumb"
+            if [ -f "$thumb" ]; then
+                echo "$name|$thumb"
+            else
+                echo "$name|$img"
+            fi
         else
             echo "$name|$img"
         fi
@@ -114,7 +127,7 @@ choice=$(
                  --hide-scroll --prompt="Выбери обои: " --allow-markup
 )
 
-rm "$WOFI_STYLE" "$WOFI_CONF"
+rm -f "$WOFI_STYLE"
 
 if [ -z "$choice" ]; then
     exit 0
@@ -123,17 +136,19 @@ fi
 # Получаем полный путь обоев
 choice_name="${choice%%|*}"
 wallpaper=""
-for img in "$WALLPAPER_DIR"/*.jpg "$WALLPAPER_DIR"/*.jpeg "$WALLPAPER_DIR"/*.png "$WALLPAPER_DIR"/*.webp; do
+for img in "$WALLPAPER_DIR"/*.{jpg,jpeg,png,webp}; do
+    [ -f "$img" ] || continue
     if [ "$(basename "$img")" = "$choice_name" ]; then
         wallpaper="$img"
         break
     fi
 done
 
-if [ -z "$wallpaper" ]; then
-    notify-send "Ошибка" "Обои не найдены" 2>/dev/null
-    exit 1
+if [ -z "$wallpaper" ] || [ ! -f "$wallpaper" ]; then
+    error_exit "Обои не найдены: $choice_name"
 fi
+
+echo "🎨 Применяю тему для: $(basename "$wallpaper")..."
 
 # ==================== ПРИМЕНЯЕМ ТЕМУ ====================
 "$WAL_BIN" -i "$wallpaper" -q
@@ -142,27 +157,28 @@ fi
 echo "$wallpaper" > "$HOME_DIR/.cache/current_wallpaper"
 
 # Применяем обои на рабочий стол
-swaybg -o '*' -i "$wallpaper" &
+swaybg -o '*' -i "$wallpaper" >/dev/null 2>&1 &
 SWAYBG_PID=$!
 
-# Даём немного времени для обновления pywal кэша
-sleep 1
+# Даём время для обновления pywal кэша
+sleep 0.5
 
 # Синхронизируем greetd если есть скрипт
 SYNC_SCRIPT="$SCRIPT_DIR/sync-greetd-theme.sh"
 if [ -f "$SYNC_SCRIPT" ] && [ -x "$SYNC_SCRIPT" ]; then
-    bash "$SYNC_SCRIPT"
+    bash "$SYNC_SCRIPT" 2>/dev/null || true
 fi
 
 # Перезагружаем waybar
 killall waybar 2>/dev/null || true
-sleep 0.5
-waybar &
-
-# Перезагружаем niri чтобы применить новые цвета
-sudo -u $USER systemctl --user restart niri 2>/dev/null || true
+sleep 0.3
+waybar >/dev/null 2>&1 &
 
 # Показываем уведомление
-notify-send "🎨 Тема" "Обновлены обои и цвета\n$(basename "$wallpaper")" 2>/dev/null
+if command -v notify-send &>/dev/null; then
+    notify-send "🎨 Тема" "✅ Обновлены обои и цвета\n$(basename "$wallpaper")"
+fi
 
-wait $SWAYBG_PID 2>/dev/null
+echo "✅ Тема применена: $(basename "$wallpaper")"
+
+wait $SWAYBG_PID 2>/dev/null || true

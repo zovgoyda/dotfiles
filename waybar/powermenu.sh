@@ -15,16 +15,16 @@ fi
 # Получаем разрешение экрана
 SCREEN_WIDTH=$(xrandr 2>/dev/null | grep " connected" | head -1 | grep -oP '\d+x\d+' | cut -d'x' -f1 || echo "3440")
 
-# Масштабируем размеры меню в зависимости от разрешения
-MENU_WIDTH=$(echo "scale=0; $SCREEN_WIDTH * 0.2" | bc)
-MENU_HEIGHT=$(echo "scale=0; $SCREEN_WIDTH * 0.06" | bc)
-ITEM_SIZE=$(echo "scale=0; $MENU_WIDTH * 0.8" | bc)
+# Масштабируем размеры меню в зависимости от разрешения (без bc, используем bash arithmetic)
+MENU_WIDTH=$((SCREEN_WIDTH / 5))  # 20% от ширины
+MENU_HEIGHT=$((SCREEN_WIDTH / 16))  # 6% от ширины
+ITEM_SIZE=$((MENU_WIDTH * 80 / 100))  # 80% от ширины меню
 
-[ "$MENU_WIDTH" -lt 200 ] && MENU_WIDTH=200
-[ "$MENU_HEIGHT" -lt 120 ] && MENU_HEIGHT=120
-[ "$ITEM_SIZE" -lt 100 ] && ITEM_SIZE=100
+[ $MENU_WIDTH -lt 200 ] && MENU_WIDTH=200
+[ $MENU_HEIGHT -lt 120 ] && MENU_HEIGHT=120
+[ $ITEM_SIZE -lt 100 ] && ITEM_SIZE=100
 
-echo "
+cat > "$WOFI_STYLE" << CSS
 window {
     background-color: transparent;
     background-image: none;
@@ -104,7 +104,7 @@ decoration {
 #text:selected {
     color: #ffffff;
 }
-" > "$WOFI_STYLE"
+CSS
 
 ICON_POWER=$(printf '\xEF\x80\x91')
 ICON_REBOOT=$(printf '\xEF\x8B\xB9')
@@ -129,4 +129,4 @@ case "$choice" in
         ;;
 esac
 
-rm "$WOFI_STYLE"
+rm -f "$WOFI_STYLE"
