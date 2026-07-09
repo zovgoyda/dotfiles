@@ -1,132 +1,76 @@
 #!/bin/bash
-
-WOFI_STYLE=$(mktemp)
+# Простое меню выключения с иконками
 
 WAL_COLORS="$HOME/.cache/wal/colors.sh"
+
+# Загружаем цвета если есть
 if [ -f "$WAL_COLORS" ]; then
     source "$WAL_COLORS"
+    bg="${background}"
+    fg="${foreground}"
+    c1="${color1:-#ff6b6b}"
 else
-    background="#2e1a47"
-    color4="#4a2c73"
-    color5="#4a2c73"
+    bg="#2e1a47"
+    fg="#ffffff"
+    c1="#ff6b6b"
 fi
 
-# ==================== АДАПТИВНЫЕ РАЗМЕРЫ ====================
-# Получаем разрешение экрана
-SCREEN_WIDTH=$(xrandr 2>/dev/null | grep " connected" | head -1 | grep -oP '\d+x\d+' | cut -d'x' -f1 || echo "3440")
-
-# Масштабируем размеры меню в зависимости от разрешения (без bc, используем bash arithmetic)
-MENU_WIDTH=$((SCREEN_WIDTH / 5))  # 20% от ширины
-MENU_HEIGHT=$((SCREEN_WIDTH / 16))  # 6% от ширины
-ITEM_SIZE=$((MENU_WIDTH * 80 / 100))  # 80% от ширины меню
-
-[ $MENU_WIDTH -lt 200 ] && MENU_WIDTH=200
-[ $MENU_HEIGHT -lt 120 ] && MENU_HEIGHT=120
-[ $ITEM_SIZE -lt 100 ] && ITEM_SIZE=100
-
-cat > "$WOFI_STYLE" << CSS
+# Создаём CSS
+WOFI_STYLE=$(mktemp)
+cat > "$WOFI_STYLE" << EOF
 window {
     background-color: transparent;
-    background-image: none;
-    box-shadow: none;
     border: none;
-    padding: 0px;
-    margin: 0px;
 }
-decoration {
+main {
     background-color: transparent;
-    background-image: none;
-    box-shadow: none;
-    border: none;
-    border-radius: 0px;
-}
-#input {
-    min-height: 0px;
-    min-width: 0px;
-    padding: 0px;
-    margin: 0px;
-    border: none;
-    background-color: transparent;
-    background-image: none;
-    color: transparent;
-    caret-color: transparent;
-}
-#input image {
-    opacity: 0;
-    min-width: 0px;
-    min-height: 0px;
-    -gtk-icon-transform: scale(0);
 }
 #outer-box {
-    background-color: transparent;
-    background-image: none;
-    box-shadow: none;
-    margin: 0px;
-    padding: 0px;
-    border: none;
+    background-color: rgba(46, 26, 71, 0.9);
+    border: 2px solid #7fc8ff;
+    border-radius: 16px;
+    padding: 20px;
 }
 #inner-box {
     background-color: transparent;
-    background-image: none;
-    box-shadow: none;
-    margin: 0px;
-    padding: 0px;
-    border: none;
 }
 #scroll {
     background-color: transparent;
-    background-image: none;
-    box-shadow: none;
-    margin: 0px;
-    padding: 0px;
-    border: none;
 }
 #entry {
-    background-color: ${background};
-    background-image: none;
-    box-shadow: none;
-    border: 2px solid ${color4};
-    border-radius: 16px;
-    padding: 8px;
-    margin: 6px;
-    min-width: ${ITEM_SIZE}px;
-    max-width: ${ITEM_SIZE}px;
-    min-height: ${ITEM_SIZE}px;
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 5px;
+    font-size: 32px;
+}
+#entry:hover {
+    border: 2px solid #7fc8ff;
+    background-color: rgba(127, 200, 255, 0.2);
 }
 #entry:selected {
-    background-color: ${color5};
+    border: 2px solid #7fc8ff;
+    background-color: rgba(127, 200, 255, 0.3);
 }
 #text {
-    font-family: FontAwesome;
-    font-size: 36px;
     color: #ffffff;
 }
-#text:selected {
-    color: #ffffff;
-}
-CSS
+EOF
 
-ICON_POWER=$(printf '\xEF\x80\x91')
-ICON_REBOOT=$(printf '\xEF\x8B\xB9')
-ICON_LOGOUT=$(printf '\xEF\x82\x8B')
-ICON_LOCK=$(printf '\xEF\x80\xA3')
-
-choice=$(printf '%s\n%s\n%s\n%s\n' "$ICON_POWER" "$ICON_REBOOT" "$ICON_LOGOUT" "$ICON_LOCK" | \
-    wofi --dmenu --style="$WOFI_STYLE" --width=$MENU_WIDTH --height=$MENU_HEIGHT --columns=4 --hide-scroll --prompt="" --location=center)
-
-case "$choice" in
-    "$ICON_POWER")
-        loginctl poweroff
-        ;;
-    "$ICON_REBOOT")
-        loginctl reboot
-        ;;
-    "$ICON_LOGOUT")
-        loginctl terminate-session "$XDG_SESSION_ID"
-        ;;
-    "$ICON_LOCK")
-        swaylock
-        ;;
-esac
+# Иконки
+echo -e "\uf011\n\uf01e\n\uf08b\n\uf023" | \
+wofi --dmenu --style="$WOFI_STYLE" \
+    --width=400 --height=250 \
+    --columns=4 --hide-scroll \
+    --prompt="" --location=center | \
+while read -r choice; do
+    case "$choice" in
+        $'\uf011') loginctl poweroff ;;
+        $'\uf01e') loginctl reboot ;;
+        $'\uf08b') loginctl terminate-session "$XDG_SESSION_ID" ;;
+        $'\uf023') swaylock ;;
+    esac
+done
 
 rm -f "$WOFI_STYLE"
